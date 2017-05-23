@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <vector>
+#include <stack>
 #include "Lexer.hpp"
 
 /*
