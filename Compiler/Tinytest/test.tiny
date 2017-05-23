@@ -1,0 +1,14 @@
+{ Sample program
+  in TINY language -
+  computes accumulation
+}
+read x; { input an integer }
+if 0 < x then { don't compute if x <= 0 }
+	fact := 0;
+	i := x;
+	repeat
+		fact := fact + i;
+		i := i - 1
+	until i = 0;
+	write fact { output accumulation of x }
+end
