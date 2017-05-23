@@ -64,6 +64,7 @@ private:
     std::vector<SyntaxTree> tree;
     std::vector<SyntaxTree>::iterator iter; // ptr of Lexer result
     size_t lookAhead;  // pointer to the current token record
+    std::stack<TokenRecord> treeStack;  // a stack designed for syntax tree produced
     
 private:
     void match(const TokenType&);
