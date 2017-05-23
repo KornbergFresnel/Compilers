@@ -44,6 +44,7 @@ char Lexer::getNextChar() {
     return buffer[++bufferPtr];
 }
 
+// Get token with identified name
 TokenType Lexer::getToken(const std::string& str) {
     if (isdigit(str[0])) {
         return NUM;
@@ -56,6 +57,7 @@ TokenType Lexer::getToken(const std::string& str) {
     }
 }
 
+// Get token without identified name when token belongs to RESERVE WORDs
 TokenType Lexer::getToken2(const std::string &str) {
     if (isdigit(str[0])) {
         return NUM;
@@ -68,6 +70,7 @@ TokenType Lexer::getToken2(const std::string &str) {
     }
 }
 
+// Store current token, with line number
 void Lexer::storeToken(const std::string& str) {
     TokenRecord tokenRecord;
     tokenRecord.tokenVal = getToken2(str);
@@ -77,8 +80,9 @@ void Lexer::storeToken(const std::string& str) {
     } else {
         tokenRecord.attribute.numVal = std::atoi(str.c_str());
     }
+    tokenRecord.lineNum = curline;  // record current line number
     eleRecordList.push_back(tokenRecord);
-    lineNumber.push_back(curline);
+    // lineNumber.push_back(curline);
 }
 
 /*
@@ -202,8 +206,9 @@ void Lexer::lexer() {
         std::string eof = "EOF";
         token.attribute.stringVal = new char[4];
         std::copy(eof.begin(), eof.end(), token.attribute.stringVal);
+        token.lineNum = curline;
         eleRecordList.push_back(token);
-        lineNumber.push_back(curline);
+        // lineNumber.push_back(curline);
     }
 }
 
@@ -212,7 +217,7 @@ void Lexer::show() {
     size_t len = eleRecordList.size();
     for (size_t i = 0; i < len; i++) {
         auto ele = eleRecordList[i];
-        printf("%d:\t", lineNumber[i]);
+        printf("%d:\t", ele.lineNum);
         if (ele.tokenVal == NUM) {
             printf("NUM, value = %d\n", ele.attribute.numVal);
         } else if (ele.tokenVal == ID) {
