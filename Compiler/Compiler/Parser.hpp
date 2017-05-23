@@ -42,7 +42,7 @@ typedef enum {IfK, ReapeatK, AssignK, ReadK, WriteK} EStmtKind; // type of sub o
 typedef enum {OpK, ConstK, IdK} EExpKind;   // type of sub of expression: ...
 typedef enum {Void, Integer, Boolean} EExpType; // value of expression
 
-typedef struct Node {
+struct Node {
     TokenRecord token;  // current node's value, type: TokenRecord
     struct Node* pChildNode[MAXCHILDLEN];
     struct Node* pSibling;
@@ -53,7 +53,7 @@ typedef struct Node {
     
     int lineNum;
     EExpType ExpType;
-} SyntaxTree;
+};
 
 /*
  How we record the syntax tree? - By using stack!!!
@@ -61,10 +61,11 @@ typedef struct Node {
 class Parser {
 private:
     std::vector<TokenRecord> tokens;
-    std::vector<SyntaxTree> tree;
-    std::vector<SyntaxTree>::iterator iter; // ptr of Lexer result
+    // std::vector<Node> tree;
+    // std::vector<Node>::iterator iter; // ptr of Lexer result
     size_t lookAhead;  // pointer to the current token record
     std::stack<TokenRecord> treeStack;  // a stack designed for syntax tree produced
+    std::stack<Node> treeNodeStack;
     
 private:
     void match(const TokenType&);
