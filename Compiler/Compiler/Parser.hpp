@@ -34,7 +34,7 @@
  17. mulop -> *  |  /
  18. factor -> ( expression )  |  var  |  NUM
  */
-const int MAXCHILDLEN = 10;
+const int MAXCHILDLEN = 255;
 
 typedef enum {StmtK, ExpK} EnodeKind;   // type of node: expression, statement
 typedef enum {IfK, ReapeatK, AssignK, ReadK, WriteK} EStmtKind; // type of sub of statment: ...
@@ -54,6 +54,9 @@ typedef struct Node {
     EExpType ExpType;
 } SyntaxTree;
 
+/*
+ How we record the syntax tree? - By using stack!!!
+*/
 class Parser {
 private:
     std::vector<TokenRecord> tokens;
