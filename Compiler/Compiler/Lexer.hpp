@@ -44,6 +44,7 @@ typedef struct {
         char* stringVal;
         int numVal;
     } attribute;
+    int lineNum;
 } TokenRecord;
 
 class Lexer {
@@ -51,13 +52,13 @@ private:
     std::ifstream sourceFile;
     std::ofstream outFile;
     std::string fileName;
-    int bufferPtr;
-    int curline;
-    char buffer[MAXN];
+    int bufferPtr;  // ptr of buffer
+    int curline;    // this variable records the current line number which Lexer is scanning
+    char buffer[MAXN];  // a buffer array used to store scaned chars temporary
     
     std::string curStr;
     std::vector<TokenRecord> eleRecordList;
-    std::vector<int> lineNumber;
+    // std::vector<int> lineNumber;
     
 private:
     bool init();

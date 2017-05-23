@@ -11,8 +11,8 @@
 
 int main(int argc, const char * argv[]) {
     // insert code here...
-    std::string test = "/Users/zhouming/Downloads/Lab1/Tinytest/test.tiny";
-    std::string example = "/Users/zhouming/Downloads/Lab1/Tinytest/example.tiny";
+    std::string test = "/Users/zhouming/GitHub/Compilers/Compiler/Tinytest/test.tiny";
+    std::string example = "./Tinytest/example.tiny";
     Lexer lexerMode(test);
     lexerMode.lexer();
     lexerMode.show();

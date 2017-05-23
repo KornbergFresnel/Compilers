@@ -27,6 +27,7 @@
 /* Begin PBXFileReference section */
 		682EF9F81EB87C930019A1EF /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Parser.cpp; sourceTree = "<group>"; };
 		682EF9F91EB87C930019A1EF /* Parser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Parser.hpp; sourceTree = "<group>"; };
+		686D405B1ED3C3A80041D421 /* Tinytest */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Tinytest; path = ../Tinytest; sourceTree = "<group>"; };
 		68F2C9501EA5A12A00D0A16D /* Compiler */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Compiler; sourceTree = BUILT_PRODUCTS_DIR; };
 		68F2C9531EA5A12A00D0A16D /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		68F2C95A1EA5A15100D0A16D /* Lexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Lexer.cpp; sourceTree = "<group>"; };
@@ -68,6 +69,7 @@
 				68F2C95B1EA5A15100D0A16D /* Lexer.hpp */,
 				682EF9F81EB87C930019A1EF /* Parser.cpp */,
 				682EF9F91EB87C930019A1EF /* Parser.hpp */,
+				686D405B1ED3C3A80041D421 /* Tinytest */,
 			);
 			path = Compiler;
 			sourceTree = "<group>";

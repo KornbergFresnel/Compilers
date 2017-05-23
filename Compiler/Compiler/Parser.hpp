@@ -34,20 +34,35 @@
  17. mulop -> *  |  /
  18. factor -> ( expression )  |  var  |  NUM
  */
+const int MAXCHILDLEN = 10;
+
+typedef enum {StmtK, ExpK} EnodeKind;   // type of node: expression, statement
+typedef enum {IfK, ReapeatK, AssignK, ReadK, WriteK} EStmtKind; // type of sub of statment: ...
+typedef enum {OpK, ConstK, IdK} EExpKind;   // type of sub of expression: ...
+typedef enum {Void, Integer, Boolean} EExpType; // value of expression
 
 typedef struct Node {
     TokenRecord token;  // current node's value, type: TokenRecord
-    Node* lChild;   // left child node
-    Node* rChild;   // right child node
+    struct Node* pChildNode[MAXCHILDLEN];
+    struct Node* pSibling;
+    
+    EnodeKind NodeKind;
+    union { EStmtKind stmt; EExpKind exp; } Kind;
+    union { TokenType op; int val; char* name; } Attr;
+    
+    int lineNum;
+    EExpType ExpType;
 } SyntaxTree;
 
 class Parser {
 private:
+    std::vector<TokenRecord> tokens;
     std::vector<SyntaxTree> tree;
     std::vector<SyntaxTree>::iterator iter; // ptr of Lexer result
+    size_t lookAhead;  // pointer to the current token record
     
 private:
-    void match(const TokenRecord&, const TokenType&);
+    void match(const TokenType&);
     void declara(); // var or statment
     void stateMent();   // expression-clause, selection-clause, iteration-clause
     void varDeclara();  // match(write) ID | match(read) ID
@@ -59,10 +74,15 @@ private:
     void additiveExp(); // additiveExp match(addop) term
     void term();    // term match(mulop) factor
     void factor();  // match(() exp match()) | match(ID) | match(NUM)
+    void relop();   // < | > | =
+    void addop();   // + | -
+    void mulop();   // * | /
+    void report(const std::string);
 
 public:
-    Parser() {};
-    void parser(const std::vector<TokenRecord>&);
+    Parser(std::vector<TokenRecord> tokens): tokens(tokens) {};
+    void parser();   // Parsing with TokenRecords
+    void show();    // list all SyntaxTree
 };
 
 #endif /* Parser_hpp */
