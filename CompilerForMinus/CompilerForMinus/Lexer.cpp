@@ -68,14 +68,14 @@ TokenType Lexer::getToken2(const std::string &str) {
 
 void Lexer::storeToken(const std::string& str) {
     TokenRecord tokenRecord;
-    tokenRecord.tokenVal = getToken2(str);
+    tokenRecord.tokenVal = getToken(str);
     if (tokenRecord.tokenVal != NUM) {
         tokenRecord.attribute.stringVal = new char[str.length() + 1];
         std::copy(str.begin(), str.end(), tokenRecord.attribute.stringVal);
     } else {
         tokenRecord.attribute.numVal = std::atoi(str.c_str());
     }
-    lineNumber.push_back(curline);
+    tokenRecord.lineNum = curline;
     eleRecordList.push_back(tokenRecord);
 }
 
@@ -151,6 +151,7 @@ StateType Lexer::inNum(StateType &oldState, char w) {
         // store this TokenType
         storeToken(curStr);
         curStr.clear();
+        bufferPtr--;
         return S_END;
     }
 }
@@ -164,6 +165,7 @@ StateType Lexer::inName(StateType &oldState, char w) {
         // check wheter keyword or id name
         storeToken(curStr);
         curStr.clear();
+        bufferPtr--;
         return S_END;
     }
 }
@@ -178,6 +180,7 @@ StateType Lexer::inSpecial(StateType &oldState, char w) {
     } else {
         storeToken(curStr);
         curStr.clear();
+        bufferPtr--;
         return S_END;
     }
 }
@@ -185,6 +188,10 @@ StateType Lexer::inSpecial(StateType &oldState, char w) {
 /*
  Public functions part
  */
+std::vector<TokenRecord> Lexer::getTokenList() {
+    return eleRecordList;
+}
+
 void Lexer::lexer() {
     if(init()) {
         char w = '\0';
@@ -200,13 +207,16 @@ void Lexer::lexer() {
             }
             state = (state == S_COMMENT ? S_COMMENT : S_START);
         }
+        if (curStr != "") {
+            storeToken(curStr);
+        }
         TokenRecord token;
         token.tokenVal = ENDFILE;
         std::string eof = "EOF";
         token.attribute.stringVal = new char[4];
         std::copy(eof.begin(), eof.end(), token.attribute.stringVal);
+        token.lineNum = curline;
         eleRecordList.push_back(token);
-        lineNumber.push_back(curline);
     }
 }
 
@@ -215,7 +225,8 @@ void Lexer::show() {
     size_t len = eleRecordList.size();
     for (size_t i = 0; i < len; i++) {
         auto ele = eleRecordList[i];
-        printf("%d:\t", lineNumber[i]);
+//        printf("%d:\t", lineNumber[i]);
+        printf("%d:\t", ele.lineNum);
         if (ele.tokenVal == NUM) {
             printf("NUM, value = %d\n", ele.attribute.numVal);
         } else if (ele.tokenVal == ID) {

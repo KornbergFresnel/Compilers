@@ -8,14 +8,16 @@
 
 #include <iostream>
 #include "Lexer.hpp"
+#include "Parser.hpp"
 
 int main(int argc, const char * argv[]) {
     // insert code here...
-    std::string test = "/Users/zhouming/Downloads/Lab1/Tinytest/test.tiny";
-    std::string example = "/Users/zhouming/Downloads/Lab2/example.c-";
+    std::string example = "/Users/zhouming/GitHub/Compilers/CompilerForMinus/CompilerForMinus/CMinus/example.c-";
     Lexer lexerMode(example);
     lexerMode.lexer();
     lexerMode.show();
-    lexerMode.store();
+//    Parser parseMoudle(lexerMode.getTokenList());
+//    parseMoudle.parser();
+//    parseMoudle.show();
     return 0;
 }

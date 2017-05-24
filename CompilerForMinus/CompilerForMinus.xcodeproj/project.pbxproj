@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		6831C80D1EAC60AF00EAB7C4 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6831C80C1EAC60AF00EAB7C4 /* main.cpp */; };
 		6831C8151EAC60D700EAB7C4 /* Lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6831C8131EAC60D700EAB7C4 /* Lexer.cpp */; };
+		68726A1C1ED556F1008AD8B6 /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 68726A1A1ED556F1008AD8B6 /* Parser.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -28,6 +29,9 @@
 		6831C80C1EAC60AF00EAB7C4 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		6831C8131EAC60D700EAB7C4 /* Lexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Lexer.cpp; sourceTree = "<group>"; };
 		6831C8141EAC60D700EAB7C4 /* Lexer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Lexer.hpp; sourceTree = "<group>"; };
+		68726A1A1ED556F1008AD8B6 /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Parser.cpp; sourceTree = "<group>"; };
+		68726A1B1ED556F1008AD8B6 /* Parser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Parser.hpp; sourceTree = "<group>"; };
+		68726A1D1ED557A2008AD8B6 /* CMinus */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CMinus; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,9 +64,12 @@
 		6831C80B1EAC60AF00EAB7C4 /* CompilerForMinus */ = {
 			isa = PBXGroup;
 			children = (
+				68726A1D1ED557A2008AD8B6 /* CMinus */,
 				6831C80C1EAC60AF00EAB7C4 /* main.cpp */,
 				6831C8131EAC60D700EAB7C4 /* Lexer.cpp */,
 				6831C8141EAC60D700EAB7C4 /* Lexer.hpp */,
+				68726A1A1ED556F1008AD8B6 /* Parser.cpp */,
+				68726A1B1ED556F1008AD8B6 /* Parser.hpp */,
 			);
 			path = CompilerForMinus;
 			sourceTree = "<group>";
@@ -126,6 +133,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6831C8151EAC60D700EAB7C4 /* Lexer.cpp in Sources */,
+				68726A1C1ED556F1008AD8B6 /* Parser.cpp in Sources */,
 				6831C80D1EAC60AF00EAB7C4 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -257,6 +265,7 @@
 				6831C8121EAC60AF00EAB7C4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

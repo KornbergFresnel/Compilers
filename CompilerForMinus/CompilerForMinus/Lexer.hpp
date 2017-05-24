@@ -46,6 +46,7 @@ typedef struct {
         char* stringVal;
         int numVal;
     } attribute;
+    int lineNum;
 } TokenRecord;
 
 class Lexer {
@@ -59,8 +60,7 @@ private:
     
     std::string curStr;
     std::vector<TokenRecord> eleRecordList;
-    std::vector<int> lineNumber;
-    
+
 private:
     bool init();
     void storeToken(const std::string&);
@@ -77,6 +77,7 @@ private:
     
 public:
     Lexer(std::string sourceFileName): fileName(sourceFileName){}
+    std::vector<TokenRecord> getTokenList();
     void lexer();   // open source file, then execute lexer
     void show();    // print lexer result on console
     void store();   // store eleRecordList in a file
