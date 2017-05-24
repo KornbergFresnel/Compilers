@@ -93,11 +93,7 @@ void Parser::printTree(Node *node, int layer) {
 				break;
 		}
 	}
-	
-	while (node->pSibling != NULL) {
-		printTree(node->pSibling, layer);
-		node = node->pSibling;
-	}
+	printTree(node->pSibling, layer);
 }
 
 void Parser::show() {
