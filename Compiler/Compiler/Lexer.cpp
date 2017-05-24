@@ -73,7 +73,7 @@ TokenType Lexer::getToken2(const std::string &str) {
 // Store current token, with line number
 void Lexer::storeToken(const std::string& str) {
     TokenRecord tokenRecord;
-    tokenRecord.tokenVal = getToken2(str);
+    tokenRecord.tokenVal = getToken(str);
     if (tokenRecord.tokenVal != NUM) {
         tokenRecord.attribute.stringVal = new char[str.length() + 1];
         std::copy(str.begin(), str.end(), tokenRecord.attribute.stringVal);
@@ -101,7 +101,7 @@ StateType Lexer::stateSwitch(StateType &state, char w) {
             newState = inOperator(state, w);
             break;
         case S_NUM:
-            newState = inName(state, w);
+            newState = inNum(state, w);
             break;
         case S_COMMENT:
             newState = inComment(state, w);
@@ -123,7 +123,7 @@ StateType Lexer::inStart(StateType& oldState, char w) {
         return S_NAME;
     } else if (w == '{') {
         return S_COMMENT;
-    } else if (w == ':' || w == '>' || w == '<' || w == '=' || w == '+' || w == '-' || w == ';') {
+    } else if (w == ':' || w == '>' || w == '<' || w == '=' || w == '+' || w == '-' || w == ';' || w == '/' || w == '*') {
         curStr += w;
         return S_OPE;
     }
@@ -151,6 +151,7 @@ StateType Lexer::inNum(StateType &oldState, char w) {
         // roll back a char without error information
         // store this TokenType
         storeToken(curStr);
+        bufferPtr--;
         curStr.clear();
         return S_END;
     }
@@ -164,6 +165,7 @@ StateType Lexer::inName(StateType &oldState, char w) {
         // roll back a char without error information
         // check wheter keyword or id name
         storeToken(curStr);
+        bufferPtr--;
         curStr.clear();
         return S_END;
     }
@@ -178,6 +180,7 @@ StateType Lexer::inOperator(StateType &oldState, char w) {
         return S_END;
     } else {
         storeToken(curStr);
+        bufferPtr--;
         curStr.clear();
         return S_END;
     }
@@ -186,6 +189,10 @@ StateType Lexer::inOperator(StateType &oldState, char w) {
 /*
  Public functions part
  */
+std::vector<TokenRecord> Lexer::getTokenList() {
+    return eleRecordList;
+}
+
 void Lexer::lexer() {
     if(init()) {
         char w = '\0';
@@ -200,6 +207,9 @@ void Lexer::lexer() {
                 state = stateSwitch(state, w);
             }
             state = (state == S_COMMENT ? S_COMMENT : S_START);
+        }
+        if (curStr != "") {
+            storeToken(curStr);
         }
         TokenRecord token;
         token.tokenVal = ENDFILE;

@@ -8,14 +8,17 @@
 
 #include <iostream>
 #include "Lexer.hpp"
+#include "Parser.hpp"
 
 int main(int argc, const char * argv[]) {
     // insert code here...
     std::string test = "/Users/zhouming/GitHub/Compilers/Compiler/Tinytest/test.tiny";
-    std::string example = "./Tinytest/example.tiny";
-    Lexer lexerMode(test);
+    std::string example = "/Users/zhouming/GitHub/Compilers/Compiler/Tinytest/example.tiny";
+    Lexer lexerMode(example);
     lexerMode.lexer();
-    lexerMode.show();
-    lexerMode.store();
+    // lexerMode.show();
+    Parser parserModule(lexerMode.getTokenList());
+    parserModule.parser();
+    parserModule.show();
     return 0;
 }

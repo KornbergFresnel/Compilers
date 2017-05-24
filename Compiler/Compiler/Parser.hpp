@@ -15,27 +15,8 @@
 #include <stack>
 #include "Lexer.hpp"
 
-/*
- 1. program -> declaration_list
- 2. declaration_list -> declaration_list declaration  |  declaration
- 3. declaration -> var_declaration  |  statement_list
- 4. var_declaration -> write ID | read ID
- 5. statement_list -> statement_list statement  |  empty
- 6. statement -> expression_stmt  |  selection_stmt  |  iteration_stmt
- 7. expression_stmt -> expression ;  |  ;
- 8. selection_stmt -> if expression then statement end;
- 9. iteration_stmt -> repeat statement until expression
- 10. expression -> var := expression  |  simple_expression
- 11. var -> ID
- 12. simple_expression -> additive_expression relop additive_expression  |  additive_expression
- 13. relop -> <  |  >  |  =
- 14. additive_expression -> additive_expression addop term  |  term
- 15. addop -> +  |  -
- 16. term -> term mulop factor  |  factor
- 17. mulop -> *  |  /
- 18. factor -> ( expression )  |  var  |  NUM
- */
-const int MAXCHILDLEN = 255;
+
+const int MAXCHILDLEN = 4;
 
 typedef enum {StmtK, ExpK} EnodeKind;   // type of node: expression, statement
 typedef enum {IfK, ReapeatK, AssignK, ReadK, WriteK} EStmtKind; // type of sub of statment: ...
@@ -43,12 +24,11 @@ typedef enum {OpK, ConstK, IdK} EExpKind;   // type of sub of expression: ...
 typedef enum {Void, Integer, Boolean} EExpType; // value of expression
 
 struct Node {
-    TokenRecord token;  // current node's value, type: TokenRecord
     struct Node* pChildNode[MAXCHILDLEN];
     struct Node* pSibling;
     
     EnodeKind NodeKind;
-    union { EStmtKind stmt; EExpKind exp; } Kind;
+    union { EStmtKind stmt; EExpKind exp; } KNode;
     union { TokenType op; int val; char* name; } Attr;
     
     int lineNum;
@@ -61,34 +41,37 @@ struct Node {
 class Parser {
 private:
     std::vector<TokenRecord> tokens;
-    // std::vector<Node> tree;
-    // std::vector<Node>::iterator iter; // ptr of Lexer result
+    Node* syntaxTree;
     size_t lookAhead;  // pointer to the current token record
-    std::stack<TokenRecord> treeStack;  // a stack designed for syntax tree produced
-    std::stack<Node> treeNodeStack;
     
 private:
+    Node* declara(); // var or statment
+    Node* stmtSequence();
+    Node* stateMent();   // expression-clause, selection-clause, iteration-clause
+    Node* expStmt(); // express ; | ;
+    Node* seleStmt();    // match(if) expression match(then) statement match(end)
+    Node* iteraStmt();   // match(repeat) expression match(until) expression
+    Node* assignStmt();
+    Node* simpleExp();   // additiveExp match(relop) additiveExp | additiveExp
+    Node* additiveExp(); // additiveExp match(addop) term
+    Node* term();    // term match(mulop) factor
+    Node* factor();  // match(() exp match()) | match(ID) | match(NUM)
+    Node* writeStmt();
+    Node* readStmt();
+
+private:
+    Node* createStmtNode(EStmtKind);
+    Node* createExpNode(EExpKind);
+    void report(const std::string, const size_t);
     void match(const TokenType&);
-    void declara(); // var or statment
-    void stateMent();   // expression-clause, selection-clause, iteration-clause
-    void varDeclara();  // match(write) ID | match(read) ID
-    void expStmt(); // express ; | ;
-    void seleStmt();    // match(if) expression match(then) statement match(end)
-    void iteraStmt();   // match(repeat) expression match(until) expression
-    void exp(); // ID match(:=) expression | simplepression
-    void simpleExp();   // additiveExp match(relop) additiveExp | additiveExp
-    void additiveExp(); // additiveExp match(addop) term
-    void term();    // term match(mulop) factor
-    void factor();  // match(() exp match()) | match(ID) | match(NUM)
-    void relop();   // < | > | =
-    void addop();   // + | -
-    void mulop();   // * | /
-    void report(const std::string);
+    void printTree(Node*, int);
+    void printOp(const TokenType&);
 
 public:
-    Parser(std::vector<TokenRecord> tokens): tokens(tokens) {};
+    Parser(std::vector<TokenRecord> tokens): tokens(tokens) { syntaxTree = new Node(); };
     void parser();   // Parsing with TokenRecords
     void show();    // list all SyntaxTree
+    void printToken(const size_t);
 };
 
 #endif /* Parser_hpp */

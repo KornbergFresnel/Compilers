@@ -76,6 +76,7 @@ private:
 
 public:
     Lexer(std::string sourceFileName): fileName(sourceFileName){}
+    std::vector<TokenRecord> getTokenList();
     void lexer();   // open source file, then execute lexer
     void show();    // print lexer result on console
     void store();   // store eleRecordList in a file

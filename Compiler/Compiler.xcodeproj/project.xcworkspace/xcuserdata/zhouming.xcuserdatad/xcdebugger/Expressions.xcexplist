@@ -16,5 +16,35 @@
             </PersistentString>
          </PersistentStrings>
       </ContextState>
+      <ContextState
+         contextName = "Parser::parser():Parser.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "tokens">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "Parser::term():Parser.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "tokens">
+            </PersistentString>
+            <PersistentString
+               value = "lookAhead">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "Parser::assignStmt():Parser.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "tokens">
+            </PersistentString>
+            <PersistentString
+               value = "lookAhead">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
    </ContextStates>
 </VariablesViewState>
