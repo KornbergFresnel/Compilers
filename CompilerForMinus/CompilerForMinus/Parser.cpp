@@ -112,9 +112,9 @@ void Parser::printDeclaNode(Node* node, int layer) {
 void Parser::printTree(Node *node, int layer) {
     if (NULL == node) return;
     for (int i = 0; i < layer; i++) printf("\t");
-    if (node->NodeKind == StmtK) printStmtNode(node);
-    else if (node->NodeKind == ExpK) printExpNode(node);
-    else if (node->NodeKind == DeclaK) printDeclaNode(node);
+    if (node->NodeKind == StmtK) printStmtNode(node, layer);
+    else if (node->NodeKind == ExpK) printExpNode(node, layer);
+    else if (node->NodeKind == DeclaK) printDeclaNode(node, layer);
     printTree(node->pSibling, layer);
 }
 
@@ -206,7 +206,7 @@ Node* Parser::declara() {
         
         if (tokens[lookAhead].tokenVal == NUM) {
             t->pChildNode[2] = createExpNode(ConstK);
-            t->pChildNode[2].Attr.val = tokens[lookAhead].attribute.numVal;
+            t->pChildNode[2]->Attr.val = tokens[lookAhead].attribute.numVal;
         }
         match(NUM); match(RMP);
     }
@@ -247,7 +247,7 @@ Node* Parser::varDecla() {
         
         if (tokens[lookAhead].tokenVal == NUM) {
             t->pChildNode[2] = createExpNode(ConstK);
-            t->pChildNode[2].Attr.val = tokens[lookAhead].attribute.numVal;
+            t->pChildNode[2]->Attr.val = tokens[lookAhead].attribute.numVal;
         }
         match(NUM); match(RMP);
     }

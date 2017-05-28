@@ -22,7 +22,6 @@ typedef enum {StmtK, ExpK, DeclaK} EnodeKind;   // type of node: expression, sta
 typedef enum {IfK, WhileK, AssignK, CompK, CallK} EStmtKind; // type of sub of statment: ...
 typedef enum {Var_DeclK, Arry_ElemK, Funck, Arry_DeclK, ParamsK, VoidK, ParamK} EDeclKind;
 typedef enum {OpK, ConstK, IdK, ArrayK, ReturnK} EExpKind;   // type of sub of expression: ...
-typedef enum {ParamK, VoidK} EParamKind;
 typedef enum {Void, Integer} EExpType; // value of expression
 
 struct Node {
@@ -30,8 +29,8 @@ struct Node {
     struct Node* pSibling;
     
     EnodeKind NodeKind; // first check
-    union { EStmtKind stmt; EExpKind exp; EDeclKind decla} KNode;   // second check
-    union { EParamKind para, TokenType op; int val; char* name; } Attr; // third check
+    union { EStmtKind stmt; EExpKind exp; EDeclKind decla; } KNode;   // second check
+    union { TokenType op; int val; char* name; } Attr; // third check
     EExpType ExpType;
 };
 
@@ -47,6 +46,7 @@ private:
 private:
     Node* declaraSequence();    // decalration_list decalration | decalration
     Node* declara(); // var or statment
+    Node* varDecla();
     Node* typeDefine();
     Node* params();
     Node* paramlist();
@@ -72,9 +72,7 @@ private:
 private:
     Node* createStmtNode(EStmtKind);
     Node* createExpNode(EExpKind);
-    Node* createTypeNode(EExpType);
-    Node* createParamNode(EParamKind);
-    Node* createDecl();
+    Node* createDeclNode(EDeclKind);
     bool isRelop(const TokenType);
     void report(const std::string, const size_t);
     void match(const TokenType&);
