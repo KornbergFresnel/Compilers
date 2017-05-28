@@ -68,7 +68,6 @@ void Parser::printTree(Node *node, int layer) {
             case ReadK:
                 printf("Read: %s\n", node->Attr.name);
                 break;
-                // printTree(node->pChildNode[0], layer + 1);
             case WriteK:
                 printf("Write\n");
                 printTree(node->pChildNode[0], layer + 1);
