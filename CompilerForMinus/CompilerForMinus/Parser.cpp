@@ -77,7 +77,7 @@ void Parser::printStmtNode(Node* node, int layer) {
             printf("CompK\n");
             break;
         case CallK:
-            printf("CallK\n")
+            printf("CallK\n");
             break;
         default:
             break;
@@ -488,7 +488,7 @@ Node* Parser::var() {
     Node* t = createExpNode(IdK);
     if (tokens[lookAhead].tokenVal == ID) {
         t->Attr.name = new char[strlen(tokens[lookAhead].attribute.stringVal)];
-        std::strcpy(t->Attr.name, tokens[lookAhead].attribute.stringVal)
+        std::strcpy(t->Attr.name, tokens[lookAhead].attribute.stringVal);
     }
     match(ID);
     if (tokens[lookAhead].tokenVal == LMP) {
