@@ -62,49 +62,59 @@ void Parser::printOp(const TokenType& token) {
     }
 }
 
+void Parser::printStmtNode(Node* node, int layer) {
+    switch (node->KNode.stmt) {
+        case IfK:
+            printf("If\n");
+            printTree(node->pChildNode[0], layer + 1);
+            printTree(node->pChildNode[1], layer + 1);
+            break;
+        case WhileK:
+            printf("Repeat\n");
+            printTree(node->pChildNode[0], layer + 1);
+            printTree(node->pChildNode[1], layer + 1);
+            break;
+        case AssignK:
+            printf("Assign to: %s\n", node->Attr.name);
+            printTree(node->pChildNode[0], layer + 1);
+            break;
+        case CompK:
+            printf("Read: %s\n", node->Attr.name);
+            break;
+        default:
+            break;
+    }
+}
+
+void Parser::printExpNode(Node* node, int layer) {
+    switch (node->KNode.exp) {
+        case OpK:
+            printOp(node->Attr.op);
+            printTree(node->pChildNode[0], layer + 1);
+            printTree(node->pChildNode[1], layer + 1);
+            break;
+        case ConstK:
+            printf("Const: %d\n", node->Attr.val);
+            break;
+        case IdK:
+            printf("Id: %s\n", node->Attr.name);
+            break;
+        default:
+            break;
+    }
+}
+
+void Parser::printDeclaNode(Node* node, int layer) {
+
+}
+
 // Print tree
 void Parser::printTree(Node *node, int layer) {
     if (NULL == node) return;
     for (int i = 0; i < layer; i++) printf("\t");
-    if (node->NodeKind == StmtK) {
-        switch (node->KNode.stmt) {
-            case IfK:
-                printf("If\n");
-                printTree(node->pChildNode[0], layer + 1);
-                printTree(node->pChildNode[1], layer + 1);
-                break;
-            case WhileK:
-                printf("Repeat\n");
-                printTree(node->pChildNode[0], layer + 1);
-                printTree(node->pChildNode[1], layer + 1);
-                break;
-            case AssignK:
-                printf("Assign to: %s\n", node->Attr.name);
-                printTree(node->pChildNode[0], layer + 1);
-                break;
-            case CompK:
-                printf("Read: %s\n", node->Attr.name);
-                break;
-            default:
-                break;
-        }
-    } else if (node->NodeKind == ExpK) {
-        switch (node->KNode.exp) {
-            case OpK:
-                printOp(node->Attr.op);
-                printTree(node->pChildNode[0], layer + 1);
-                printTree(node->pChildNode[1], layer + 1);
-                break;
-            case ConstK:
-                printf("Const: %d\n", node->Attr.val);
-                break;
-            case IdK:
-                printf("Id: %s\n", node->Attr.name);
-                break;
-            default:
-                break;
-        }
-    }
+    if (node->NodeKind == StmtK) printStmtNode(node);
+    else if (node->NodeKind == ExpK) printExpNode(node);
+    else if (node->NodeKind == DeclaK) printDeclaNode(node);
     printTree(node->pSibling, layer);
 }
 
@@ -171,43 +181,84 @@ Node* Parser::declaraSequence() {
 
 // var_declaration | func_declaration
 Node* Parser::declara() {
-    Node* t = createDecl();
-    if (t != NULL) {
-        switch (t->KNode.decla) {
-            case Var_DeclK:
-                match(SEMI);
-                break;
-            case Arry_ElemK:
-                match(LMP);
-                if (tokens[lookAhead].tokenVal == NUM) t->size = tokens[lookAhead].attribute.numVal;
-                match(NUM);
-                match(RMP);
-                match(SEMI);
-                break;
-            case Funck:
-                match(LPAREN);
-                t->pChildNode[0] = params();
-                match(RPAREN);
-                match(LLP);
-                t->pChildNode[1] = compStmt();
-                match(RLP);
-                break;
-            default:
-                break;
+    // Node* t = createDecl();
+    Node* t = createDeclNode(Var_DeclK);
+    t->pChildNode[0] = typeDefine();    // type
+
+    if (tokens[lookAhead].tokenVal == ID) {
+        Node* p = createExpNode(IdK);
+        p->Attr.name = new char[strlen(tokens[lookAhead].attribute.stringVal)];
+        std::strcpy(p->Attr.name, tokens[lookAhead].attribute.stringVal);
+        match(ID);
+        t->pChildNode[1] = p;   // name
+    } else {
+        report("unexpected token->", lookAhead);
+        t = NULL;
+        lookAhead++;
+    }
+    
+    if (t != NULL && tokens[lookAhead].tokenVal == LMP) {
+        // create a Arry_DeclK
+        Node* p = createDeclNode(Arry_DeclK);
+        p->Attr.name = t->Attr.name;
+        t->Attr.name = NULL;
+        t->pChildNode[1] = p;   // modify to array, and set array's name with current name
+        
+        if (tokens[lookAhead].tokenVal == NUM) {
+            t->pChildNode[2] = createExpNode(ConstK);
+            t->pChildNode[2].Attr.val = tokens[lookAhead].attribute.numVal;
         }
+        match(NUM); match(RMP);
+    }
+    if (tokens[lookAhead].tokenVal == SEMI) match(SEMI);
+    if (t != NULL && tokens[lookAhead].tokenVal == LPAREN) {
+        t->KNode.decla = Funck; // modify decla type
+        match(LPAREN);
+        t->pChildNode[1] = params();
+        match(RPAREN);
+        t->pChildNode[2] = compStmt();
     }
     return t;
 }
 
-Node* Parser::params() {
-    Node* t = NULL;
-    if (tokens[lookAhead].tokenVal == VOID) {
-        t = new Node();
-        t->KNode.par = VoidK;
+
+Node* Parser::varDecla() {
+    Node* t = createDeclNode(Var_DeclK);
+    t->pChildNode[0] = typeDefine();
+
+    if (tokens[lookAhead].tokenVal == ID) {
+        Node* p = createExpNode(IdK);
+        p->Attr.name = new char[strlen(tokens[lookAhead].attribute.stringVal)];
+        std::strcpy(p->Attr.name, tokens[lookAhead].attribute.stringVal);
+        match(ID);
+        t->pChildNode[1] = p;   // name
     } else {
-        t->KNode.par = ParamsK;
-        t->pChildNode[0] = paramlist();
+        report("unexpected token->", lookAhead);
+        t = NULL;
+        lookAhead++;
     }
+    
+    if (t != NULL && tokens[lookAhead].tokenVal == LMP) {
+        // create a Arry_DeclK
+        Node* p = createDeclNode(Arry_DeclK);
+        p->Attr.name = t->Attr.name;
+        t->Attr.name = NULL;
+        t->pChildNode[1] = p;   // modify to array, and set array's name with current name
+        
+        if (tokens[lookAhead].tokenVal == NUM) {
+            t->pChildNode[2] = createExpNode(ConstK);
+            t->pChildNode[2].Attr.val = tokens[lookAhead].attribute.numVal;
+        }
+        match(NUM); match(RMP);
+    }
+    match(SEMI);
+    return t;
+}
+
+Node* Parser::params() {
+    Node* t = createDeclNode(ParamsK);
+    if (tokens[lookAhead].tokenVal == VOID) t->pChildNode[0] = createDeclNode(VoidK);
+    else t->pChildNode[0] = paramlist();
     return t;
 }
 
@@ -215,8 +266,17 @@ Node* Parser::paramlist() {
     Node* t = param();
     Node* p = t;
     while (tokens[lookAhead].tokenVal == COM) {
+        Node* q;
         match(COM);
-        
+        q = param();
+        if (q != NULL) {
+            if (t == NULL) {
+                t = p = q;
+            } else {
+                p->pSibling = q;
+                p = q;
+            }
+        }
     }
     return t;
 }
@@ -225,18 +285,21 @@ Node* Parser::paramlist() {
 Node* Parser::param() {
     // match type
     // match ID
-    Node* t = createParamNode(ParamsK);
-    if (tokens[lookAhead].tokenVal == INT) { t->ExpType = Integer; match(INT); }
-    else if (tokens[lookAhead].tokenVal == VOID) { t->ExpType = Void; match(VOID); }
-    else {
-        report("unexcepted token->", lookAhead);
+    Node* t = createDeclNode(ParamK);
+    t->pChildNode[0] = typeDefine();
+
+    if (tokens[lookAhead].tokenVal == ID) {
+        Node* p = createExpNode(IdK);
+        p->Attr.name = new char[strlen(tokens[lookAhead].attribute.stringVal)];
+        std::strcpy(p->Attr.name, tokens[lookAhead].attribute.stringVal);
+        match(ID);
+        t->pChildNode[1] = p;   // name
+    } else {
+        report("unexpected token->", lookAhead);
+        t = NULL;
         lookAhead++;
     }
-    if (tokens[lookAhead].tokenVal == ID) {
-        t->Attr.name = new char[strlen(tokens[lookAhead].attribute.stringVal)];
-        std::strcpy(t->Attr.name, tokens[lookAhead].attribute.stringVal);
-    }
-    match(ID);
+    // param may be array
     if (tokens[lookAhead].tokenVal == LMP) {
         match(LMP);
         match(RMP);
@@ -256,21 +319,18 @@ Node* Parser::compStmt() {
 }
 
 Node* Parser::localDecla() {
-    Node* t = createDecl();
-    if (t != NULL) {
-        switch (t->KNode.decla) {
-            case Var_DeclK:
-                match(SEMI);
-                break;
-            case Arry_ElemK:
-                match(LMP);
-                if (tokens[lookAhead].tokenVal == NUM) t->size = tokens[lookAhead].attribute.numVal;
-                match(NUM);
-                match(RMP);
-                match(SEMI);
-                break;
-            default:
-                break;
+    Node* t = varDecla();
+    Node* p = t;
+    while (tokens[lookAhead].tokenVal != ID && tokens[lookAhead].tokenVal != ENDFILE && tokens[lookAhead].tokenVal != RLP) {
+        Node* q;
+        q = varDecla();
+        if (q != NULL) {
+            if (t == NULL) {
+                t = p = q;
+            } else {
+                p->pSibling = q;
+                p = q;
+            }
         }
     }
     return t;
@@ -490,12 +550,14 @@ Node* Parser::factor() {
 Node* Parser::call() {
     Node* t = createStmtNode(CallK);
     if (tokens[lookAhead].tokenVal == ID) {
-        t->Attr.name = new char[strlen(tokens[lookAhead].attribute.stringVal)];
-        std::strcpy(t->Attr.name, tokens[lookAhead].attribute.stringVal);
+        Node* p =createExpNode(IdK);
+        p->Attr.name = new char[strlen(tokens[lookAhead].attribute.stringVal)];
+        std::strcpy(p->Attr.name, tokens[lookAhead].attribute.stringVal);
+        t->pChildNode[0] = p;
     }
     match(ID);
     match(LPAREN);
-    t->pChildNode[0] = args();
+    t->pChildNode[1] = args();
     match(RPAREN);
     return t;
 }
@@ -508,7 +570,7 @@ Node* Parser::args() {
 Node* Parser::arglist() {
     Node* t = expression();
     Node* p = t;
-    while (tokens[lookAhead].tokenVal != ENDFILE) {
+    while (tokens[lookAhead].tokenVal != ENDFILE && tokens[lookAhead].tokenVal != RPAREN) {
         Node* q;
         match(COM);
         q = expression();
@@ -541,34 +603,10 @@ Node* Parser::createExpNode(EExpKind kind) {
     return t;
 }
 
-Node* Parser::createDecl() {
+Node* Parser::createDeclNode(EDeclKind kind) {
     Node* t = new Node();
     t->NodeKind = DeclaK;
-    if (tokens[lookAhead].tokenVal == VOID) {
-        t->ExpType = Void;
-        match(VOID);
-    } else if (tokens[lookAhead].tokenVal == INT) {
-        t->ExpType = Integer;
-        match(INT);
-    } else {
-        report("unexcepcted token->", lookAhead);
-        t = NULL;
-        lookAhead++;
-    }
-    if (t != NULL && tokens[lookAhead].tokenVal == ID) {
-        t->Attr.name = new char[strlen(tokens[lookAhead].attribute.stringVal)];
-        std::strcpy(t->Attr.name, tokens[lookAhead].attribute.stringVal);
-        match(ID);
-    } else {
-        report("unexpected token->", lookAhead);
-        t = NULL;
-        lookAhead++;
-    }
-    if (t != NULL && tokens[lookAhead].tokenVal == LMP) {
-        t->KNode.decla = Arry_ElemK;
-    } else if (t != NULL && tokens[lookAhead].tokenVal == LPAREN) {
-        t->KNode.decla = Funck;
-    } else t->KNode.decla = Var_DeclK;
+    t->KNode.decla = kind;
     return t;
 }
 

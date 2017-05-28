@@ -20,20 +20,18 @@ const int MAXCHILDLEN = 4;
 
 typedef enum {StmtK, ExpK, DeclaK} EnodeKind;   // type of node: expression, statement
 typedef enum {IfK, WhileK, AssignK, CompK, CallK} EStmtKind; // type of sub of statment: ...
-typedef enum {Var_DeclK, Arry_ElemK, Funck} EDeclKind;
+typedef enum {Var_DeclK, Arry_ElemK, Funck, Arry_DeclK, ParamsK, VoidK, ParamK} EDeclKind;
 typedef enum {OpK, ConstK, IdK, ArrayK, ReturnK} EExpKind;   // type of sub of expression: ...
-typedef enum {ParamsK, VoidK} EParamKind;
+typedef enum {ParamK, VoidK} EParamKind;
 typedef enum {Void, Integer} EExpType; // value of expression
 
 struct Node {
     struct Node* pChildNode[MAXCHILDLEN];
     struct Node* pSibling;
     
-    EnodeKind NodeKind;
-    union { EStmtKind stmt; EExpKind exp; EDeclKind decla; EParamKind par; } KNode;
-    union { TokenType op; int val; char* name; } Attr;
-    int size;
-    int lineNum;
+    EnodeKind NodeKind; // first check
+    union { EStmtKind stmt; EExpKind exp; EDeclKind decla} KNode;   // second check
+    union { EParamKind para, TokenType op; int val; char* name; } Attr; // third check
     EExpType ExpType;
 };
 
@@ -49,6 +47,7 @@ private:
 private:
     Node* declaraSequence();    // decalration_list decalration | decalration
     Node* declara(); // var or statment
+    Node* typeDefine();
     Node* params();
     Node* paramlist();
     Node* param();
@@ -81,6 +80,9 @@ private:
     void match(const TokenType&);
     void printTree(Node*, int);
     void printOp(const TokenType&);
+    void printStmtNode(Node*, int);
+    void printExpNode(Node*, int);
+    void printDeclaNode(Node*, int);
     
 public:
     Parser(std::vector<TokenRecord> tokens): tokens(tokens) { syntaxTree = new Node(); };
