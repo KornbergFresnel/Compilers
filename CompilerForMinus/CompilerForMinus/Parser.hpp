@@ -19,8 +19,8 @@
 const int MAXCHILDLEN = 4;
 
 typedef enum {StmtK, ExpK} EnodeKind;   // type of node: expression, statement
-typedef enum {IfK, ReapeatK, AssignK, ReadK, WriteK} EStmtKind; // type of sub of statment: ...
-typedef enum {OpK, ConstK, IdK} EExpKind;   // type of sub of expression: ...
+typedef enum {IfK, WhileK, AssignK, CompK, Var_DeclK, FuncK, ParamsK, Arry_ElemK} EStmtKind; // type of sub of statment: ...
+typedef enum {OpK, ConstK, IdK, ArrayK} EExpKind;   // type of sub of expression: ...
 typedef enum {Void, Integer, Boolean} EExpType; // value of expression
 
 struct Node {
@@ -45,21 +45,33 @@ private:
     size_t lookAhead;  // pointer to the current token record
     
 private:
-    Node* declaraSequence();
+    Node* declaraSequence();    // decalration_list decalration | decalration
     Node* declara(); // var or statment
+    Node* localDecla();
+    Node* arrayDecla();
     Node* stmtSequence();
     Node* stateMent();   // expression-clause, selection-clause, iteration-clause
     Node* expStmt(); // express ; | ;
     Node* seleStmt();    // match(if) expression match(then) statement match(end)
     Node* iteraStmt();   // match(repeat) expression match(until) expression
-    Node* assignStmt();
+    Node* returnStmt();
+    Node* expression();
+    Node* compStmt();
     Node* simpleExp();   // additiveExp match(relop) additiveExp | additiveExp
+    Node* var();
     Node* term();    // term match(mulop) factor
     Node* factor();  // match(() exp match()) | match(ID) | match(NUM)
+    Node* typeNode();
+    Node* additiveExp();
+    Node* call();
+    Node* args();
+    Node* arglist();
     
 private:
     Node* createStmtNode(EStmtKind);
     Node* createExpNode(EExpKind);
+    Node* createTypeNode(EExpType);
+    bool isRelop(const TokenType);
     void report(const std::string, const size_t);
     void match(const TokenType&);
     void printTree(Node*, int);
