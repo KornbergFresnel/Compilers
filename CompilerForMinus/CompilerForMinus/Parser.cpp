@@ -66,24 +66,24 @@ void Parser::printStmtNode(Node* node, int layer) {
     switch (node->KNode.stmt) {
         case IfK:
             printf("If\n");
-            printTree(node->pChildNode[0], layer + 1);
-            printTree(node->pChildNode[1], layer + 1);
             break;
         case WhileK:
-            printf("Repeat\n");
-            printTree(node->pChildNode[0], layer + 1);
-            printTree(node->pChildNode[1], layer + 1);
+            printf("While\n");
             break;
         case AssignK:
-            printf("Assign to: %s\n", node->Attr.name);
-            printTree(node->pChildNode[0], layer + 1);
+            printf("Assign\n");
             break;
         case CompK:
-            printf("Read: %s\n", node->Attr.name);
+            printf("CompK\n");
+            break;
+        case CallK:
+            printf("CallK\n")
             break;
         default:
             break;
     }
+    printTree(node->pChildNode[0], layer + 1);
+    printTree(node->pChildNode[1], layer + 1);
 }
 
 void Parser::printExpNode(Node* node, int layer) {
@@ -94,10 +94,19 @@ void Parser::printExpNode(Node* node, int layer) {
             printTree(node->pChildNode[1], layer + 1);
             break;
         case ConstK:
-            printf("Const: %d\n", node->Attr.val);
+            printf("ConstK: %d\n", node->Attr.val);
             break;
         case IdK:
-            printf("Id: %s\n", node->Attr.name);
+            printf("IdK: %s\n", node->Attr.name);
+            break;
+        case Arry_ElemK:
+            printf("Arry_ElemK\n");
+            printTree(node->pChildNode[0], layer + 1);
+            printTree(node->pChildNode[1], layer + 1);
+            break;
+        case ReturnK:
+            printf("Return\n");
+            printTree(node->pChildNode[0], layer + 1);
             break;
         default:
             break;
@@ -105,7 +114,28 @@ void Parser::printExpNode(Node* node, int layer) {
 }
 
 void Parser::printDeclaNode(Node* node, int layer) {
-
+    printTree(node->pChildNode[0], layer + 1);
+    switch (node->KNode.decla) {
+        case Var_DeclK:
+            printTree(node->pChildNode[1], layer + 1);
+            break;
+        case Arry_DeclK:
+            printTree(node->pChildNode[1], layer + 1);
+            break;
+        case Funck:
+            printTree(node->pChildNode[1], layer + 1);
+            printTree(node->pChildNode[2], layer + 1);
+            break;
+        case ParamsK:
+            break;
+        case VoidK:
+            break;
+        case ParamK:
+            printTree(node->pChildNode[1], layer + 1);
+            break;
+        default:
+            break;
+    }
 }
 
 // Print tree
@@ -199,15 +229,15 @@ Node* Parser::declara() {
     
     if (t != NULL && tokens[lookAhead].tokenVal == LMP) {
         // create a Arry_DeclK
-        Node* p = createDeclNode(Arry_DeclK);
-        p->Attr.name = t->Attr.name;
-        t->Attr.name = NULL;
-        t->pChildNode[1] = p;   // modify to array, and set array's name with current name
-        
+        Node* p = createDeclNode(Arry_DeclK);        
         if (tokens[lookAhead].tokenVal == NUM) {
-            t->pChildNode[2] = createExpNode(ConstK);
-            t->pChildNode[2]->Attr.val = tokens[lookAhead].attribute.numVal;
+            p->pChildNode[0] = createExpNode(IdK);
+            p->pChildNode[0]->Attr.name = t->Attr.name;
+            t->Attr.name = NULL;
+            p->pChildNode[1] = createExpNode(ConstK);
+            p->pChildNode[1]->Attr.val = tokens[lookAhead].attribute.numVal;
         }
+        t->pChildNode[1] = p;
         match(NUM); match(RMP);
     }
     if (tokens[lookAhead].tokenVal == SEMI) match(SEMI);
@@ -456,10 +486,20 @@ Node* Parser::expression() {
 
 Node* Parser::var() {
     Node* t = createExpNode(IdK);
+    if (tokens[lookAhead].tokenVal == ID) {
+        t->Attr.name = new char[strlen(tokens[lookAhead].attribute.stringVal)];
+        std::strcpy(t->Attr.name, tokens[lookAhead].attribute.stringVal)
+    }
     match(ID);
     if (tokens[lookAhead].tokenVal == LMP) {
+        Node* p = createExpNode(Arry_ElemK);
+        p->pChildNode[0] = createExpNode(IdK);
+        p->pChildNode[0]->Attr.name = new char[strlen(t->Attr.name)];
+        std::strcpy(p->pChildNode[0]->Attr.name, t->Attr.name);
+        delete t;
+        t = p;
         match(LMP);
-        if (t != NULL) t->pChildNode[0] = expression();
+        t->pChildNode[1] = expression();
         match(RMP);
     }
     return t;
