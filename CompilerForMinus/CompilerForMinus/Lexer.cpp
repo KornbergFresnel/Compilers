@@ -225,7 +225,6 @@ void Lexer::show() {
     size_t len = eleRecordList.size();
     for (size_t i = 0; i < len; i++) {
         auto ele = eleRecordList[i];
-//        printf("%d:\t", lineNumber[i]);
         printf("%d:\t", ele.lineNum);
         if (ele.tokenVal == NUM) {
             printf("NUM, value = %d\n", ele.attribute.numVal);
