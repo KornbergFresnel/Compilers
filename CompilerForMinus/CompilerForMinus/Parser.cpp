@@ -165,7 +165,6 @@ Node* Parser::declaraSequence() {
     Node* p = t;
     while (tokens[lookAhead].tokenVal != ENDFILE) {
         Node* q;
-        match(SEMI);
         q = declara();
         if (q != NULL) {
             if (t == NULL) {
@@ -182,8 +181,23 @@ Node* Parser::declaraSequence() {
 
 // var_declaration | func_declaration
 Node* Parser::declara() {
-    Node* t = NULL; 
-    if (tokens[lookAhead].tokenVal == LPAREN) {
+    Node* t = createDecl();
+    if (t != NULL && t->KNode.decla == Var_DeclK) {
+        match(SEMI);
+        return t;
+        
+    } else if (t != NULL && t->KNode.decla == Arry_ElemK) {
+        match(LMP);
+        if (tokens[lookAhead].tokenVal == NUM) t->Attr.val = tokens[lookAhead].attribute;
+    } else if (t != NULL && t->KNode.decla == Funck) {
+        match(LPAREN);
+        t->pChildNode[0] = params();
+        match(RPAREN);
+        match(LLP);
+        t->pChildNode[1] = compStmt();
+        match(RLP);
+    }
+    if (tokens[lookAhead + ].tokenVal == LPAREN) {
         t = createStmtNode(FuncK);
     } else { 
         t = createStmtNode(Var_DeclK);

@@ -18,8 +18,9 @@
 
 const int MAXCHILDLEN = 4;
 
-typedef enum {StmtK, ExpK} EnodeKind;   // type of node: expression, statement
-typedef enum {IfK, WhileK, AssignK, CompK, Var_DeclK, FuncK, ParamsK, Arry_ElemK} EStmtKind; // type of sub of statment: ...
+typedef enum {StmtK, ExpK, DeclaK} EnodeKind;   // type of node: expression, statement
+typedef enum {IfK, WhileK, AssignK, CompK, ParamsK} EStmtKind; // type of sub of statment: ...
+typedef enum {Var_DeclK, Arry_ElemK, Funck} EDeclKind;
 typedef enum {OpK, ConstK, IdK, ArrayK} EExpKind;   // type of sub of expression: ...
 typedef enum {Void, Integer, Boolean} EExpType; // value of expression
 
@@ -28,7 +29,7 @@ struct Node {
     struct Node* pSibling;
     
     EnodeKind NodeKind;
-    union { EStmtKind stmt; EExpKind exp; } KNode;
+    union { EStmtKind stmt; EExpKind exp; EDeclKind decla; } KNode;
     union { TokenType op; int val; char* name; } Attr;
     
     int lineNum;
