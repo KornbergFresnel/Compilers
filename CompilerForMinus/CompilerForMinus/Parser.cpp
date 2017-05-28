@@ -85,16 +85,6 @@ void Parser::printTree(Node *node, int layer) {
             case CompK:
                 printf("Read: %s\n", node->Attr.name);
                 break;
-            case Var_DeclK:
-                printf("Write\n");
-                printTree(node->pChildNode[0], layer + 1);
-                break;
-            case FuncK:
-                break;
-            case ParamsK:
-                break;
-            case Arry_ElemK:
-                break;
             default:
                 break;
         }
@@ -182,70 +172,107 @@ Node* Parser::declaraSequence() {
 // var_declaration | func_declaration
 Node* Parser::declara() {
     Node* t = createDecl();
-    if (t != NULL && t->KNode.decla == Var_DeclK) {
-        match(SEMI);
-        return t;
-        
-    } else if (t != NULL && t->KNode.decla == Arry_ElemK) {
-        match(LMP);
-        if (tokens[lookAhead].tokenVal == NUM) t->Attr.val = tokens[lookAhead].attribute;
-    } else if (t != NULL && t->KNode.decla == Funck) {
-        match(LPAREN);
-        t->pChildNode[0] = params();
-        match(RPAREN);
-        match(LLP);
-        t->pChildNode[1] = compStmt();
-        match(RLP);
-    }
-    if (tokens[lookAhead + ].tokenVal == LPAREN) {
-        t = createStmtNode(FuncK);
-    } else { 
-        t = createStmtNode(Var_DeclK);
-        if (t != NULL && tokens[lookAhead + 2].tokenVal == LMP) {
-            t->pChildNode[0] = arrayDecla();
-        } else if (t != NULL) {
-            t->pChildNode[0] = typeNode();
-            t->Attr.name = new char[strlen(tokens[lookAhead].attribute.stringVal)];
-            std::strcpy(t->Attr.name, tokens[lookAhead].attribute.stringVal);
-            match(ID);
+    if (t != NULL) {
+        switch (t->KNode.decla) {
+            case Var_DeclK:
+                match(SEMI);
+                break;
+            case Arry_ElemK:
+                match(LMP);
+                if (tokens[lookAhead].tokenVal == NUM) t->size = tokens[lookAhead].attribute.numVal;
+                match(NUM);
+                match(RMP);
+                match(SEMI);
+                break;
+            case Funck:
+                match(LPAREN);
+                t->pChildNode[0] = params();
+                match(RPAREN);
+                match(LLP);
+                t->pChildNode[1] = compStmt();
+                match(RLP);
+                break;
+            default:
+                break;
         }
     }
     return t;
 }
 
-// VOID | INT
-Node* Parser::typeNode() {
+Node* Parser::params() {
     Node* t = NULL;
-    switch(tokens[lookAhead].tokenVal) {
-        case VOID:
-            t = createTypeNode(Void);
-            break;
-        case INT:
-            t = createTypeNode(Integer);
-            break;
-        default:
-            break;
+    if (tokens[lookAhead].tokenVal == VOID) {
+        t = new Node();
+        t->KNode.par = VoidK;
+    } else {
+        t->KNode.par = ParamsK;
+        t->pChildNode[0] = paramlist();
     }
     return t;
 }
 
-// array declaration
-Node* Parser::arrayDecla() {
-    Node* t = createExpNode(ArrayK);
-    if (t != NULL) {
-        if (tokens[lookAhead].tokenVal == VOID) { t->ExpType = Void; match(VOID); } 
-        else if (tokens[lookAhead].tokenVal == INT) { t->ExpType = Integer; match(INT); }
-        else { report("unexpected token->", lookAhead); }
+Node* Parser::paramlist() {
+    Node* t = param();
+    Node* p = t;
+    while (tokens[lookAhead].tokenVal == COM) {
+        match(COM);
+        
     }
-    if (t != NULL && tokens[lookAhead].tokenVal == ID) {
+    return t;
+}
+
+// BUG
+Node* Parser::param() {
+    // match type
+    // match ID
+    Node* t = createParamNode(ParamsK);
+    if (tokens[lookAhead].tokenVal == INT) { t->ExpType = Integer; match(INT); }
+    else if (tokens[lookAhead].tokenVal == VOID) { t->ExpType = Void; match(VOID); }
+    else {
+        report("unexcepted token->", lookAhead);
+        lookAhead++;
+    }
+    if (tokens[lookAhead].tokenVal == ID) {
         t->Attr.name = new char[strlen(tokens[lookAhead].attribute.stringVal)];
         std::strcpy(t->Attr.name, tokens[lookAhead].attribute.stringVal);
     }
     match(ID);
-    match(LMP);
-    // match NUM or expression
-    if (t != NULL) t->pChildNode[1] = simpleExp();
-    match(RMP);
+    if (tokens[lookAhead].tokenVal == LMP) {
+        match(LMP);
+        match(RMP);
+    }
+    return t;
+}
+
+// { local_declarations statement_list }
+Node* Parser::compStmt() {
+    Node* t = createStmtNode(CompK);
+    match(LLP);
+    // local declarations and statement_list
+    if (t != NULL) t->pChildNode[0] = localDecla();
+    if (t != NULL) t->pChildNode[1] = stmtSequence();
+    match(RLP);
+    return t;
+}
+
+Node* Parser::localDecla() {
+    Node* t = createDecl();
+    if (t != NULL) {
+        switch (t->KNode.decla) {
+            case Var_DeclK:
+                match(SEMI);
+                break;
+            case Arry_ElemK:
+                match(LMP);
+                if (tokens[lookAhead].tokenVal == NUM) t->size = tokens[lookAhead].attribute.numVal;
+                match(NUM);
+                match(RMP);
+                match(SEMI);
+                break;
+            default:
+                break;
+        }
+    }
     return t;
 }
 
@@ -253,9 +280,8 @@ Node* Parser::arrayDecla() {
 Node* Parser::stmtSequence() {
     Node* t = stateMent();
     Node* p = t;
-    while ((tokens[lookAhead].tokenVal != ENDFILE) && (tokens[lookAhead].tokenVal != ELSE)) {
+    while (tokens[lookAhead].tokenVal != ENDFILE && tokens[lookAhead].tokenVal != RLP) {
         Node* q;
-        match(SEMI);
         q = stateMent();
         if (q != NULL) {
             if (t == NULL) {
@@ -282,7 +308,10 @@ Node* Parser::stateMent() {
             break;
         case ID:
             // syntax error
-            tmp = expression();
+            tmp = expStmt();
+            break;
+        case LLP:
+            tmp = compStmt();
             break;
         case RETURN:
             tmp = returnStmt();
@@ -295,64 +324,11 @@ Node* Parser::stateMent() {
     return tmp;
 }
 
-// if expression then statement_list else statement_list end
-Node* Parser::seleStmt() {
-    Node* t = createStmtNode(IfK);
-    match(IF);
-    match(LPAREN);
-    if (t != NULL) t->pChildNode[0] = expStmt();
-    match(RPAREN);
-    if (t != NULL) t->pChildNode[1] = compStmt();
-    return t;
-}
-
-// repeat statement_list until expression
-Node* Parser::iteraStmt() {
-    Node* t = createStmtNode(WhileK);
-    match(WHILE);
-    match(LPAREN);
-    if (t != NULL) t->pChildNode[0] = expStmt();
-    match(RPAREN);
-    if (t != NULL) t->pChildNode[1] = compStmt();
-    return t;
-}
-
-// { local_declarations statement_list }
-Node* Parser::compStmt() {
-    Node* t = createStmtNode(CompK);
-    match(LLP);
-    // local declarations and statement_list
-    if (t != NULL) t->pChildNode[0] = localDecla();
-    if (t != NULL) t->pChildNode[1] = stmtSequence();
-    match(RLP);
-    return t;
-}
-
-Node* Parser::localDecla() {
-    Node* t = declara();
-    Node* p = t;
-    while ((tokens[lookAhead].tokenVal != ENDFILE) && (tokens[lookAhead].tokenVal != ELSE)) {
-        Node* q;
-        match(SEMI);
-        q = declara();
-        if (q != NULL) {
-            if (t == NULL) {
-                t = q;
-                p = q;	// new parent
-            } else {
-                p->pSibling = q;
-                p = q;
-            }
-        }
-    }
-    return t;
-}
-
 // Expression statment contains only tow kinds expression: expression ; | ;
 Node* Parser::expStmt() {
     Node* t = expression();
     Node* p = t;
-    while (tokens[lookAhead].tokenVal != ENDFILE) {
+    while (tokens[lookAhead].tokenVal != ENDFILE && tokens[lookAhead].tokenVal != RLP) {
         Node* q;
         match(SEMI);
         q = expression();
@@ -368,19 +344,52 @@ Node* Parser::expStmt() {
     return t;
 }
 
+// if expression then statement_list else statement_list end
+Node* Parser::seleStmt() {
+    Node* t = createStmtNode(IfK);
+    match(IF);
+    match(LPAREN);
+    if (t != NULL) t->pChildNode[0] = expression();
+    match(RPAREN);
+    if (t != NULL) t->pChildNode[1] = compStmt();
+    return t;
+}
+
+// repeat statement_list until expression
+Node* Parser::iteraStmt() {
+    Node* t = createStmtNode(WhileK);
+    match(WHILE);
+    match(LPAREN);
+    if (t != NULL) t->pChildNode[0] = expression();
+    match(RPAREN);
+    if (t != NULL) t->pChildNode[1] = compStmt();
+    if (tokens[lookAhead].tokenVal == ELSE) {
+        match(ELSE);
+        if (t != NULL) t->pChildNode[2] = compStmt();
+    }
+    return t;
+}
+
+Node* Parser::returnStmt() {
+    Node* t = createExpNode(ReturnK);
+    match(RETURN);
+    t->pChildNode[0] = expression();
+    match(SEMI);
+    return t;
+}
+
 // assign statement
 Node* Parser::expression() {
-    Node* t;
-    if (tokens[lookAhead].tokenVal == ID && tokens[lookAhead].tokenVal != LPAREN) {
+    Node* t = NULL;
+    if (tokens[lookAhead].tokenVal == ID && !isRelop(tokens[lookAhead + 1].tokenVal)) {
         // var
         t = createStmtNode(AssignK);
         if (t != NULL) t->pChildNode[0] = var();
         match(ASSIGN);
         if (t != NULL) t->pChildNode[1] = expression();
-    } else if (tokens[lookAhead].tokenVal == LPAREN) {
+    } else if (tokens[lookAhead].tokenVal == LPAREN || isRelop(tokens[lookAhead + 1].tokenVal)) {
         // last
         t = simpleExp();
-        match(SEMI);
     }
     return t;
 }
@@ -478,6 +487,19 @@ Node* Parser::factor() {
     return t;
 }
 
+Node* Parser::call() {
+    Node* t = createStmtNode(CallK);
+    if (tokens[lookAhead].tokenVal == ID) {
+        t->Attr.name = new char[strlen(tokens[lookAhead].attribute.stringVal)];
+        std::strcpy(t->Attr.name, tokens[lookAhead].attribute.stringVal);
+    }
+    match(ID);
+    match(LPAREN);
+    t->pChildNode[0] = args();
+    match(RPAREN);
+    return t;
+}
+
 Node* Parser::args() {
     Node* t = arglist();
     return t;
@@ -516,6 +538,37 @@ Node* Parser::createExpNode(EExpKind kind) {
     Node* t = new Node();
     t->NodeKind = ExpK;
     t->KNode.exp = kind;
+    return t;
+}
+
+Node* Parser::createDecl() {
+    Node* t = new Node();
+    t->NodeKind = DeclaK;
+    if (tokens[lookAhead].tokenVal == VOID) {
+        t->ExpType = Void;
+        match(VOID);
+    } else if (tokens[lookAhead].tokenVal == INT) {
+        t->ExpType = Integer;
+        match(INT);
+    } else {
+        report("unexcepcted token->", lookAhead);
+        t = NULL;
+        lookAhead++;
+    }
+    if (t != NULL && tokens[lookAhead].tokenVal == ID) {
+        t->Attr.name = new char[strlen(tokens[lookAhead].attribute.stringVal)];
+        std::strcpy(t->Attr.name, tokens[lookAhead].attribute.stringVal);
+        match(ID);
+    } else {
+        report("unexpected token->", lookAhead);
+        t = NULL;
+        lookAhead++;
+    }
+    if (t != NULL && tokens[lookAhead].tokenVal == LMP) {
+        t->KNode.decla = Arry_ElemK;
+    } else if (t != NULL && tokens[lookAhead].tokenVal == LPAREN) {
+        t->KNode.decla = Funck;
+    } else t->KNode.decla = Var_DeclK;
     return t;
 }
 

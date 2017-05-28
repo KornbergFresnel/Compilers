@@ -19,19 +19,20 @@
 const int MAXCHILDLEN = 4;
 
 typedef enum {StmtK, ExpK, DeclaK} EnodeKind;   // type of node: expression, statement
-typedef enum {IfK, WhileK, AssignK, CompK, ParamsK} EStmtKind; // type of sub of statment: ...
+typedef enum {IfK, WhileK, AssignK, CompK, CallK} EStmtKind; // type of sub of statment: ...
 typedef enum {Var_DeclK, Arry_ElemK, Funck} EDeclKind;
-typedef enum {OpK, ConstK, IdK, ArrayK} EExpKind;   // type of sub of expression: ...
-typedef enum {Void, Integer, Boolean} EExpType; // value of expression
+typedef enum {OpK, ConstK, IdK, ArrayK, ReturnK} EExpKind;   // type of sub of expression: ...
+typedef enum {ParamsK, VoidK} EParamKind;
+typedef enum {Void, Integer} EExpType; // value of expression
 
 struct Node {
     struct Node* pChildNode[MAXCHILDLEN];
     struct Node* pSibling;
     
     EnodeKind NodeKind;
-    union { EStmtKind stmt; EExpKind exp; EDeclKind decla; } KNode;
+    union { EStmtKind stmt; EExpKind exp; EDeclKind decla; EParamKind par; } KNode;
     union { TokenType op; int val; char* name; } Attr;
-    
+    int size;
     int lineNum;
     EExpType ExpType;
 };
@@ -48,8 +49,11 @@ private:
 private:
     Node* declaraSequence();    // decalration_list decalration | decalration
     Node* declara(); // var or statment
+    Node* params();
+    Node* paramlist();
+    Node* param();
+    Node* compStmt();
     Node* localDecla();
-    Node* arrayDecla();
     Node* stmtSequence();
     Node* stateMent();   // expression-clause, selection-clause, iteration-clause
     Node* expStmt(); // express ; | ;
@@ -57,12 +61,10 @@ private:
     Node* iteraStmt();   // match(repeat) expression match(until) expression
     Node* returnStmt();
     Node* expression();
-    Node* compStmt();
     Node* simpleExp();   // additiveExp match(relop) additiveExp | additiveExp
     Node* var();
     Node* term();    // term match(mulop) factor
     Node* factor();  // match(() exp match()) | match(ID) | match(NUM)
-    Node* typeNode();
     Node* additiveExp();
     Node* call();
     Node* args();
@@ -72,6 +74,8 @@ private:
     Node* createStmtNode(EStmtKind);
     Node* createExpNode(EExpKind);
     Node* createTypeNode(EExpType);
+    Node* createParamNode(EParamKind);
+    Node* createDecl();
     bool isRelop(const TokenType);
     void report(const std::string, const size_t);
     void match(const TokenType&);
