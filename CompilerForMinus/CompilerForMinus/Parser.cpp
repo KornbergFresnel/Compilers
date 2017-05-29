@@ -141,7 +141,7 @@ void Parser::printDeclaNode(Node* node, int layer) {
             printTree(node->pChildNode[0], layer + 1);
             break;
         case ParamK:
-            printf("ParamK\n");
+            printf("Paramk\n");
             printTree(node->pChildNode[0], layer + 1);
             printTree(node->pChildNode[1], layer + 1);
             break;
@@ -150,7 +150,7 @@ void Parser::printDeclaNode(Node* node, int layer) {
     }
 }
 
-Node* Parser::printTypeNode(Node* node) {
+void Parser::printTypeNode(Node* node) {
     switch (node->ExpType) {
         case Void:
             printf("VoidK\n");
@@ -190,7 +190,7 @@ void Parser::match(const TokenType& type) {
         // push to subTreeStack
         lookAhead++;
     }
-    else { report("unexcepted token->", lookAhead); lookAhead++; }
+    else { report("match: unexcepted token->", lookAhead); lookAhead++; }
 }
 
 void Parser::report(const std::string mess, const size_t current) {
@@ -248,7 +248,7 @@ Node* Parser::declara() {
         match(ID);
         t->pChildNode[1] = p;   // name
     } else {
-        report("unexpected token->", lookAhead);
+        report("declara: unexpected token->", lookAhead);
         t = NULL;
         lookAhead++;
     }
@@ -293,7 +293,7 @@ Node* Parser::varDecla() {
         match(ID);
         t->pChildNode[1] = p;   // name
     } else {
-        report("unexpected token->", lookAhead);
+        report("varDecla: unexpected token->", lookAhead);
         t = NULL;
         lookAhead++;
     }
@@ -328,7 +328,7 @@ Node* Parser::typeDefine() {
         t->ExpType = Void;
         match(VOID);
     } else {
-        report("unexpected token->", lookAhead);
+        report("type: Unexpected token->", lookAhead);
         lookAhead++;
     }
     return t;
@@ -376,7 +376,7 @@ Node* Parser::param() {
         match(ID);
         t->pChildNode[1] = p;   // name
     } else {
-        report("unexpected token->", lookAhead);
+        report("param: unexpected token->", lookAhead);
         t = NULL;
         lookAhead++;
     }
@@ -402,7 +402,7 @@ Node* Parser::compStmt() {
 Node* Parser::localDecla() {
     Node* t = varDecla();
     Node* p = t;
-    while (tokens[lookAhead].tokenVal == INT && tokens[lookAhead].tokenVal == VOID) {
+    while (tokens[lookAhead].tokenVal == INT || tokens[lookAhead].tokenVal == VOID) {
         Node* q;
         q = varDecla();
         if (q != NULL) {
@@ -458,7 +458,7 @@ Node* Parser::stateMent() {
             tmp = returnStmt();
             break;
         default:
-            report("unexcepted token->", lookAhead);
+            report("statement: unexcepted token->", lookAhead);
             lookAhead++;
             break;
     }
@@ -524,16 +524,16 @@ Node* Parser::expression() {
     Node* t = NULL;
     if (tokens[lookAhead].tokenVal == ID) {
         // var
-        if (tokens[lookAhead].tokenVal == ASSIGN) {
+        if (tokens[lookAhead + 1].tokenVal == ASSIGN) {
             t = createStmtNode(AssignK);
             if (t != NULL) t->pChildNode[0] = var();
             match(ASSIGN);
             if (t != NULL) t->pChildNode[1] = expression();
-        } else if (tokens[lookAhead + 1].tokenVal == LPAREN || tokens[lookAhead + 1].tokenVal == SEMI || tokens[lookAhead].tokenVal == LPAREN || isRelop(tokens[lookAhead + 1].tokenVal)) {
+        } else {
             // last
             t = simpleExp();
-        }  
-    } 
+        }
+    }
     return t;
 }
 
@@ -631,7 +631,7 @@ Node* Parser::factor() {
             break;
         default:
             // syntax error
-            report("unexcepted token->", lookAhead);
+            report("factor: unexcepted token->", lookAhead);
             lookAhead++;
             break;
     }

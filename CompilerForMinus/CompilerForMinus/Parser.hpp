@@ -81,7 +81,7 @@ private:
     void printStmtNode(Node*, int);
     void printExpNode(Node*, int);
     void printDeclaNode(Node*, int);
-    void printTypeNode(Node*, int);
+    void printTypeNode(Node*);
     
 public:
     Parser(std::vector<TokenRecord> tokens): tokens(tokens) { syntaxTree = new Node(); };
