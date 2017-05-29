@@ -108,6 +108,9 @@ void Parser::printExpNode(Node* node, int layer) {
             printf("Return\n");
             printTree(node->pChildNode[0], layer + 1);
             break;
+        case Argsk:
+            printf("ArgsK\n");
+            printTree(node->pChildNode[0], layer + 1);
         default:
             break;
     }
@@ -642,7 +645,7 @@ Node* Parser::factor() {
 Node* Parser::call() {
     Node* t = createStmtNode(CallK);
     if (tokens[lookAhead].tokenVal == ID) {
-        Node* p =createExpNode(IdK);
+        Node* p = createExpNode(IdK);
         p->Attr.name = new char[strlen(tokens[lookAhead].attribute.stringVal)];
         std::strcpy(p->Attr.name, tokens[lookAhead].attribute.stringVal);
         t->pChildNode[0] = p;
@@ -655,7 +658,8 @@ Node* Parser::call() {
 }
 
 Node* Parser::args() {
-    Node* t = arglist();
+    Node* t = createExpNode(ArgsK);
+    t->pChildNode[0] = arglist();
     return t;
 }
 
