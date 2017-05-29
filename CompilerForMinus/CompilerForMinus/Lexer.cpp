@@ -13,7 +13,7 @@
 #include <iostream>
 
 std::map<std::string, TokenType> KEY_WORDS {
-    {"if", IF}, {"else", ELSE}, {"int", INT}, {"return", RETURN}, {"void", VOID}, {"whlie", WHILE},
+    {"if", IF}, {"else", ELSE}, {"int", INT}, {"return", RETURN}, {"void", VOID}, {"while", WHILE},
 };
 
 std::map<std::string, TokenType> SPES {
@@ -120,8 +120,10 @@ StateType Lexer::inStart(StateType& oldState, char w) {
         // is over or comment?
         char nextChar = getNextChar();
         if (nextChar == '*') return S_COMMENT;
-        else bufferPtr--;
-        return S_SPE;
+        else {
+            curStr += w;
+            return inSpecial(oldState, nextChar);
+        }
     }
     std::string temp = "";
     temp += w;

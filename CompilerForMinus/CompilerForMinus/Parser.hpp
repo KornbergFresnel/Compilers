@@ -74,6 +74,7 @@ private:
     Node* createExpNode(EExpKind);
     Node* createDeclNode(EDeclKind);
     bool isRelop(const TokenType);
+    bool isOperator(const TokenType);
     void report(const std::string, const size_t);
     void match(const TokenType&);
     void printTree(Node*, int);

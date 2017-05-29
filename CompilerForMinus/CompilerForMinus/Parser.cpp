@@ -108,9 +108,6 @@ void Parser::printExpNode(Node* node, int layer) {
             printf("Return\n");
             printTree(node->pChildNode[0], layer + 1);
             break;
-        case ArgsK:
-            printf("ArgsK\n");
-            printTree(node->pChildNode[0], layer + 1);
         default:
             break;
     }
@@ -258,8 +255,8 @@ Node* Parser::declara() {
     
     if (t != NULL && tokens[lookAhead].tokenVal == LMP) {
         // create a Arry_DeclK
-        Node* p = createDeclNode(Arry_DeclK); 
-        match(LMP);       
+        match(LMP);
+        Node* p = createDeclNode(Arry_DeclK);        
         if (tokens[lookAhead].tokenVal == NUM) {
             p->pChildNode[0] = createExpNode(IdK);
             p->pChildNode[0]->Attr.name = t->Attr.name;
@@ -289,7 +286,6 @@ Node* Parser::varDecla() {
         t->pChildNode[0] = typeDefine();
     } else return t;
     
-
     if (tokens[lookAhead].tokenVal == ID) {
         Node* p = createExpNode(IdK);
         p->Attr.name = new char[strlen(tokens[lookAhead].attribute.stringVal)];
@@ -528,16 +524,31 @@ Node* Parser::expression() {
     Node* t = NULL;
     if (tokens[lookAhead].tokenVal == ID) {
         // var
-        if (tokens[lookAhead + 1].tokenVal == ASSIGN) {
-            t = createStmtNode(AssignK);
-            if (t != NULL) t->pChildNode[0] = var();
-            match(ASSIGN);
-            if (t != NULL) t->pChildNode[1] = expression();
-        } else {
-            // last
+        t = createStmtNode(AssignK);
+        size_t oldLookAhead = lookAhead;
+        t->pChildNode[0] = var();
+        if (t->pChildNode[0] == NULL) {
+            // must be a simple
+            delete t;
             t = simpleExp();
+        } else if (tokens[lookAhead].tokenVal == LPAREN || isOperator(tokens[lookAhead].tokenVal)) {
+            delete t;
+            lookAhead = oldLookAhead;
+            t = simpleExp();
+        } else if (tokens[lookAhead].tokenVal == ASSIGN) {
+            match(ASSIGN);
+            t->pChildNode[1] = expression();
         }
-    }
+//        if (tokens[lookAhead + 1].tokenVal == ASSIGN) {
+//            t = createStmtNode(AssignK);
+//            if (t != NULL) t->pChildNode[0] = var();
+//            match(ASSIGN);
+//            if (t != NULL) t->pChildNode[1] = expression();
+//        } else {
+//            // last
+//            t = simpleExp();
+//        }
+    } else if (tokens[lookAhead].tokenVal == NUM || tokens[lookAhead].tokenVal == LPAREN) t = simpleExp();
     return t;
 }
 
@@ -618,12 +629,13 @@ Node* Parser::factor() {
         case ID:
             if (tokens[lookAhead + 1].tokenVal == LPAREN) t = call();
             else {
-                t = createExpNode(IdK);
-                if (t != NULL && tokens[lookAhead].tokenVal == ID) {
-                    t->Attr.name = new char[strlen(tokens[lookAhead].attribute.stringVal)];
-                    strcpy(t->Attr.name, tokens[lookAhead].attribute.stringVal);
-                }
-                match(ID);
+//                t = createExpNode(IdK);
+//                if (t != NULL && tokens[lookAhead].tokenVal == ID) {
+//                    t->Attr.name = new char[strlen(tokens[lookAhead].attribute.stringVal)];
+//                    strcpy(t->Attr.name, tokens[lookAhead].attribute.stringVal);
+//                }
+//                match(ID);
+                t = var();
             }
             break;
         case NUM:
@@ -645,7 +657,7 @@ Node* Parser::factor() {
 Node* Parser::call() {
     Node* t = createStmtNode(CallK);
     if (tokens[lookAhead].tokenVal == ID) {
-        Node* p = createExpNode(IdK);
+        Node* p =createExpNode(IdK);
         p->Attr.name = new char[strlen(tokens[lookAhead].attribute.stringVal)];
         std::strcpy(p->Attr.name, tokens[lookAhead].attribute.stringVal);
         t->pChildNode[0] = p;
@@ -658,8 +670,7 @@ Node* Parser::call() {
 }
 
 Node* Parser::args() {
-    Node* t = createExpNode(ArgsK);
-    t->pChildNode[0] = arglist();
+    Node* t = arglist();
     return t;
 }
 
@@ -708,4 +719,8 @@ Node* Parser::createDeclNode(EDeclKind kind) {
 
 bool Parser::isRelop(const TokenType tokenType) {
     return tokenType >= 11 && tokenType <= 16;
+}
+
+bool Parser::isOperator(const TokenType tokenType) {
+    return tokenType >= 11 && tokenType <= 20;
 }
