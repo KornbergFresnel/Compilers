@@ -9,6 +9,7 @@
 #include "Lexer.hpp"
 #include <ctype.h>
 #include <string>
+#include <cstring>
 #include <utility>
 #include <iostream>
 
@@ -32,7 +33,7 @@ bool Lexer::init() {
         std::cerr << "Open file fail!" << std::endl;
         return false;
     }
-    memset(buffer, 0, sizeof(buffer));
+    std::memset(buffer, 0, sizeof(buffer));
     bufferPtr = -1;
     curline = 0;
     curStr = "";
