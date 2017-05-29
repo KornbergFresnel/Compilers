@@ -95,7 +95,7 @@ StateType Lexer::stateSwitch(StateType &state, char w) {
             newState = inSpecial(state, w);
             break;
         case S_NUM:
-            newState = inName(state, w);
+            newState = inNum(state, w);
             break;
         case S_COMMENT:
             newState = inComment(state, w);
