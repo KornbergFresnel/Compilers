@@ -255,7 +255,8 @@ Node* Parser::declara() {
     
     if (t != NULL && tokens[lookAhead].tokenVal == LMP) {
         // create a Arry_DeclK
-        Node* p = createDeclNode(Arry_DeclK);        
+        Node* p = createDeclNode(Arry_DeclK); 
+        match(LMP);       
         if (tokens[lookAhead].tokenVal == NUM) {
             p->pChildNode[0] = createExpNode(IdK);
             p->pChildNode[0]->Attr.name = t->Attr.name;
