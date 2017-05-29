@@ -15,9 +15,9 @@ int main(int argc, const char * argv[]) {
     std::string example = "/Users/zhouming/GitHub/Compilers/CompilerForMinus/CompilerForMinus/CMinus/example.c-";
     Lexer lexerMode(example);
     lexerMode.lexer();
-    lexerMode.show();
-//    Parser parseMoudle(lexerMode.getTokenList());
-//    parseMoudle.parser();
-//    parseMoudle.show();
+    // lexerMode.show();
+    Parser parseMoudle(lexerMode.getTokenList());
+    parseMoudle.parser();
+    parseMoudle.show();
     return 0;
 }
