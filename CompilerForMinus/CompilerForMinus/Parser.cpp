@@ -114,24 +114,49 @@ void Parser::printExpNode(Node* node, int layer) {
 }
 
 void Parser::printDeclaNode(Node* node, int layer) {
-    printTree(node->pChildNode[0], layer + 1);
     switch (node->KNode.decla) {
         case Var_DeclK:
+            printf("Var_DeclK\n");
+            printTree(node->pChildNode[0], layer + 1);
             printTree(node->pChildNode[1], layer + 1);
             break;
         case Arry_DeclK:
+            printf("Arry_DeclK\n");
+            printTree(node->pChildNode[0], layer + 1);
             printTree(node->pChildNode[1], layer + 1);
             break;
         case Funck:
+            printf("Funck\n");
+            printTree(node->pChildNode[0], layer + 1);
             printTree(node->pChildNode[1], layer + 1);
             printTree(node->pChildNode[2], layer + 1);
+            printTree(node->pChildNode[3], layer + 1);
             break;
         case ParamsK:
+            printf("ParamsK\n");
+            printTree(node->pChildNode[0], layer + 1);
             break;
         case VoidK:
+            printf("VoidK\n");
+            printTree(node->pChildNode[0], layer + 1);
             break;
         case ParamK:
+            printf("ParamK\n");
+            printTree(node->pChildNode[0], layer + 1);
             printTree(node->pChildNode[1], layer + 1);
+            break;
+        default:
+            break;
+    }
+}
+
+Node* Parser::printTypeNode(Node* node) {
+    switch (node->ExpType) {
+        case Void:
+            printf("VoidK\n");
+            break;
+        case Integer:
+            printf("IntK\n");
             break;
         default:
             break;
@@ -145,6 +170,7 @@ void Parser::printTree(Node *node, int layer) {
     if (node->NodeKind == StmtK) printStmtNode(node, layer);
     else if (node->NodeKind == ExpK) printExpNode(node, layer);
     else if (node->NodeKind == DeclaK) printDeclaNode(node, layer);
+    else if (node->NodeKind == TypeK) printTypeNode(node);
     printTree(node->pSibling, layer);
 }
 
@@ -244,17 +270,21 @@ Node* Parser::declara() {
     if (t != NULL && tokens[lookAhead].tokenVal == LPAREN) {
         t->KNode.decla = Funck; // modify decla type
         match(LPAREN);
-        t->pChildNode[1] = params();
+        t->pChildNode[2] = params();
         match(RPAREN);
-        t->pChildNode[2] = compStmt();
+        t->pChildNode[3] = compStmt();
     }
     return t;
 }
 
 
 Node* Parser::varDecla() {
-    Node* t = createDeclNode(Var_DeclK);
-    t->pChildNode[0] = typeDefine();
+    Node* t = NULL;
+    if (tokens[lookAhead].tokenVal == INT || tokens[lookAhead].tokenVal == VOID) {
+        t = createDeclNode(Var_DeclK);
+        t->pChildNode[0] = typeDefine();
+    } else return t;
+    
 
     if (tokens[lookAhead].tokenVal == ID) {
         Node* p = createExpNode(IdK);
@@ -285,17 +315,38 @@ Node* Parser::varDecla() {
     return t;
 }
 
+Node* Parser::typeDefine() {
+    Node* t = NULL;
+    if (tokens[lookAhead].tokenVal == INT) {
+        t = new Node();
+        t->NodeKind = TypeK;
+        t->ExpType = Integer;
+        match(INT);
+    } else if (tokens[lookAhead].tokenVal == VOID) {
+        t = new Node();
+        t->NodeKind = TypeK;
+        t->ExpType = Void;
+        match(VOID);
+    } else {
+        report("unexpected token->", lookAhead);
+        lookAhead++;
+    }
+    return t;
+}
+
 Node* Parser::params() {
     Node* t = createDeclNode(ParamsK);
-    if (tokens[lookAhead].tokenVal == VOID) t->pChildNode[0] = createDeclNode(VoidK);
-    else t->pChildNode[0] = paramlist();
+    if (tokens[lookAhead].tokenVal == VOID) {
+        t->pChildNode[0] = createDeclNode(VoidK);
+        match(VOID);
+    } else t->pChildNode[0] = paramlist();
     return t;
 }
 
 Node* Parser::paramlist() {
     Node* t = param();
     Node* p = t;
-    while (tokens[lookAhead].tokenVal == COM) {
+    while (tokens[lookAhead].tokenVal != ENDFILE && tokens[lookAhead].tokenVal != RPAREN) {
         Node* q;
         match(COM);
         q = param();
@@ -351,7 +402,7 @@ Node* Parser::compStmt() {
 Node* Parser::localDecla() {
     Node* t = varDecla();
     Node* p = t;
-    while (tokens[lookAhead].tokenVal != ID && tokens[lookAhead].tokenVal != ENDFILE && tokens[lookAhead].tokenVal != RLP) {
+    while (tokens[lookAhead].tokenVal == INT && tokens[lookAhead].tokenVal == VOID) {
         Node* q;
         q = varDecla();
         if (q != NULL) {
@@ -370,7 +421,7 @@ Node* Parser::localDecla() {
 Node* Parser::stmtSequence() {
     Node* t = stateMent();
     Node* p = t;
-    while (tokens[lookAhead].tokenVal != ENDFILE && tokens[lookAhead].tokenVal != RLP) {
+    while (tokens[lookAhead].tokenVal != ENDFILE && tokens[lookAhead].tokenVal != RLP && tokens[lookAhead].tokenVal != ELSE) {
         Node* q;
         q = stateMent();
         if (q != NULL) {
@@ -418,7 +469,7 @@ Node* Parser::stateMent() {
 Node* Parser::expStmt() {
     Node* t = expression();
     Node* p = t;
-    while (tokens[lookAhead].tokenVal != ENDFILE && tokens[lookAhead].tokenVal != RLP) {
+    while (tokens[lookAhead].tokenVal == SEMI) {
         Node* q;
         match(SEMI);
         q = expression();
@@ -442,6 +493,10 @@ Node* Parser::seleStmt() {
     if (t != NULL) t->pChildNode[0] = expression();
     match(RPAREN);
     if (t != NULL) t->pChildNode[1] = compStmt();
+    if (tokens[lookAhead].tokenVal == ELSE) {
+        match(ELSE);
+        if (t != NULL) t->pChildNode[2] = compStmt();
+    }
     return t;
 }
 
@@ -453,10 +508,6 @@ Node* Parser::iteraStmt() {
     if (t != NULL) t->pChildNode[0] = expression();
     match(RPAREN);
     if (t != NULL) t->pChildNode[1] = compStmt();
-    if (tokens[lookAhead].tokenVal == ELSE) {
-        match(ELSE);
-        if (t != NULL) t->pChildNode[2] = compStmt();
-    }
     return t;
 }
 
@@ -471,16 +522,18 @@ Node* Parser::returnStmt() {
 // assign statement
 Node* Parser::expression() {
     Node* t = NULL;
-    if (tokens[lookAhead].tokenVal == ID && !isRelop(tokens[lookAhead + 1].tokenVal)) {
+    if (tokens[lookAhead].tokenVal == ID) {
         // var
-        t = createStmtNode(AssignK);
-        if (t != NULL) t->pChildNode[0] = var();
-        match(ASSIGN);
-        if (t != NULL) t->pChildNode[1] = expression();
-    } else if (tokens[lookAhead].tokenVal == LPAREN || isRelop(tokens[lookAhead + 1].tokenVal)) {
-        // last
-        t = simpleExp();
-    }
+        if (tokens[lookAhead].tokenVal == ASSIGN) {
+            t = createStmtNode(AssignK);
+            if (t != NULL) t->pChildNode[0] = var();
+            match(ASSIGN);
+            if (t != NULL) t->pChildNode[1] = expression();
+        } else if (tokens[lookAhead + 1].tokenVal == LPAREN || tokens[lookAhead + 1].tokenVal == SEMI || tokens[lookAhead].tokenVal == LPAREN || isRelop(tokens[lookAhead + 1].tokenVal)) {
+            // last
+            t = simpleExp();
+        }  
+    } 
     return t;
 }
 
@@ -518,8 +571,6 @@ Node* Parser::simpleExp() {
             p->pChildNode[1] = additiveExp();
             t = p;
         }
-    } else {
-        report("unexpected token->", lookAhead);
     }
     return t;
 }
@@ -570,7 +621,6 @@ Node* Parser::factor() {
                 }
                 match(ID);
             }
-            
             break;
         case NUM:
             t = createExpNode(ConstK);
@@ -582,6 +632,7 @@ Node* Parser::factor() {
         default:
             // syntax error
             report("unexcepted token->", lookAhead);
+            lookAhead++;
             break;
     }
     return t;

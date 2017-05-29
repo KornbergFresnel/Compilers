@@ -18,7 +18,7 @@
 
 const int MAXCHILDLEN = 4;
 
-typedef enum {StmtK, ExpK, DeclaK} EnodeKind;   // type of node: expression, statement
+typedef enum {StmtK, ExpK, DeclaK, TypeK} EnodeKind;   // type of node: expression, statement
 typedef enum {IfK, WhileK, AssignK, CompK, CallK} EStmtKind; // type of sub of statment: ...
 typedef enum {Var_DeclK, Funck, Arry_DeclK, ParamsK, VoidK, ParamK} EDeclKind;
 typedef enum {OpK, ConstK, IdK, Arry_ElemK, ReturnK} EExpKind;   // type of sub of expression: ...
@@ -81,6 +81,7 @@ private:
     void printStmtNode(Node*, int);
     void printExpNode(Node*, int);
     void printDeclaNode(Node*, int);
+    void printTypeNode(Node*, int);
     
 public:
     Parser(std::vector<TokenRecord> tokens): tokens(tokens) { syntaxTree = new Node(); };
