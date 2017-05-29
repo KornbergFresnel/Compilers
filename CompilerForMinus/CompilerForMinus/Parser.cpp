@@ -108,7 +108,7 @@ void Parser::printExpNode(Node* node, int layer) {
             printf("Return\n");
             printTree(node->pChildNode[0], layer + 1);
             break;
-        case Argsk:
+        case ArgsK:
             printf("ArgsK\n");
             printTree(node->pChildNode[0], layer + 1);
         default:
