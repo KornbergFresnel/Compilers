@@ -539,15 +539,6 @@ Node* Parser::expression() {
             match(ASSIGN);
             t->pChildNode[1] = expression();
         }
-//        if (tokens[lookAhead + 1].tokenVal == ASSIGN) {
-//            t = createStmtNode(AssignK);
-//            if (t != NULL) t->pChildNode[0] = var();
-//            match(ASSIGN);
-//            if (t != NULL) t->pChildNode[1] = expression();
-//        } else {
-//            // last
-//            t = simpleExp();
-//        }
     } else if (tokens[lookAhead].tokenVal == NUM || tokens[lookAhead].tokenVal == LPAREN) t = simpleExp();
     return t;
 }
@@ -628,15 +619,7 @@ Node* Parser::factor() {
             break;
         case ID:
             if (tokens[lookAhead + 1].tokenVal == LPAREN) t = call();
-            else {
-//                t = createExpNode(IdK);
-//                if (t != NULL && tokens[lookAhead].tokenVal == ID) {
-//                    t->Attr.name = new char[strlen(tokens[lookAhead].attribute.stringVal)];
-//                    strcpy(t->Attr.name, tokens[lookAhead].attribute.stringVal);
-//                }
-//                match(ID);
-                t = var();
-            }
+            else t = var();
             break;
         case NUM:
             t = createExpNode(ConstK);
