@@ -178,6 +178,9 @@ Node* Parser::stateMent() {
 			// syntax error
 			tmp = assignStmt();
 			break;
+		case UNTIL:
+		case ELSE:
+			break;
 		default:
 			report("unexcepted token->", lookAhead);
 			lookAhead++;
