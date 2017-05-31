@@ -13,12 +13,13 @@
  public function part
  */
 void Parser::parser() {
-    // always push a new node to treeNodeStack when we occurs a new non-terminate node
-    // and when we end a syntax of non-terminate node, pop it and push a new node
+	// always push a new node to treeNodeStack when we occurs a new non-terminate node
+	// and when we end a syntax of non-terminate node, pop it and push a new node
 	lookAhead = 0;
 	syntaxTree = stmtSequence();
-	if (tokens[lookAhead].tokenVal != ENDFILE)
+	if (tokens[lookAhead].tokenVal != ENDFILE) {
 		report("Code ends before file\n", -1);
+	}
 }
 
 void Parser::printOp(const TokenType& token) {
@@ -162,12 +163,12 @@ Node* Parser::stmtSequence() {
 Node* Parser::stateMent() {
 	Node* tmp = NULL;
     switch (tokens[lookAhead].tokenVal) {
-        case IF:
-            tmp = seleStmt();
-            break;
+    	case IF:
+        	tmp = seleStmt();
+        	break;
         case REPEAT:
-            tmp = iteraStmt();
-            break;
+        	tmp = iteraStmt();
+        	break;
         case WRITE:
 			tmp = writeStmt();
             break;
