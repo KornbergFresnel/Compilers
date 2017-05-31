@@ -1,0 +1,98 @@
+/* A program to perform binary search. */
+
+int Array[10];
+
+int findByBinary(int array[], int size, int number)
+{
+	int low;
+	int high;
+	int mid;
+	int notfound;
+
+	low = 0;
+	high = size - 1;
+	notfound = (0-1);
+
+	while (low <= high)
+	{
+		mid = low + (high-low) / 2;
+
+		if (array[low] == number)
+		{
+			return low;
+		}
+		if (array[high] == number)
+		{
+			return high;
+		}
+		if (array[mid] == number)
+		{
+			return mid;
+		}
+
+		if (array[mid] < number)
+		{
+			low = mid + 1;
+		}
+		else
+		{
+			high = mid - 1;
+		}
+	}
+	
+	return notfound;
+}
+
+void sortBySelection(int array[], int size)
+{ 
+	int i;
+	int k;
+	int min;
+	int temp;
+	
+	i = 0;
+	while (i<size-1)
+	{
+		min = i;
+		k = i + 1;
+		while (k<size)
+		{
+			if (array[k] < array[min])
+			{
+				min = k;
+			}
+			k = k + 1;
+		}
+		if (min != i)
+		{
+			temp = array[i];
+			array[i] = array[min];
+			array[min] = temp;
+		}
+		
+		i = i + 1;
+	}
+}
+
+void main(void)
+{
+	int i;
+	int num;
+	int numa;
+	
+	i = 0;
+	while (i < 10)
+	{
+		Array[i] = input();
+		i = i + 1;
+	}
+	
+	num = input();
+	numa = input();
+
+	sortBySelection(Array, 10);
+	/* sortBySelection(Array, 5); */
+	
+	output(findByBinary(Array, 10, num));
+	output(findByBinary(Array, 10, numa));
+}

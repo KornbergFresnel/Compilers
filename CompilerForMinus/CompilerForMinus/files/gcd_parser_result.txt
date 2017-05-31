@@ -1,0 +1,50 @@
+******
+Syntax tree:
+*****
+Funck
+	IntK
+	IdK: gcd
+	ParamsK
+		Paramk
+			IntK
+			IdK: u
+		Paramk
+			IntK
+			IdK: v
+	CompK
+		If
+			Op: ==
+				IdK: v
+				ConstK: 0
+			CompK
+				Return
+					Assign
+						IdK: u
+Funck
+	VoidK
+	IdK: main
+	ParamsK
+		VoidK
+	CompK
+		Var_DeclK
+			IntK
+			IdK: x
+		Var_DeclK
+			IntK
+			IdK: y
+		Assign
+			IdK: x
+			CallK
+				IdK: input
+		Assign
+			IdK: y
+			CallK
+				IdK: input
+		CallK
+			IdK: output
+			CallK
+				IdK: gcd
+				Assign
+					IdK: x
+				Assign
+					IdK: y

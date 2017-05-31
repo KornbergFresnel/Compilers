@@ -1,0 +1,78 @@
+******
+Syntax tree:
+*****
+Funck
+	IntK
+	IdK: max
+	ParamsK
+		Paramk
+			IntK
+			IdK: x
+		Paramk
+			IntK
+			IdK: y
+		Paramk
+			IntK
+			IdK: z
+	CompK
+		Var_DeclK
+			IntK
+			IdK: result
+		If
+			Op: >
+				IdK: x
+				IdK: y
+			CompK
+				Assign
+					IdK: result
+					Assign
+						IdK: x
+				If
+					Op: >
+						IdK: z
+						IdK: result
+					CompK
+						Assign
+							IdK: result
+							Assign
+								IdK: z
+		Return
+			Assign
+				IdK: result
+Funck
+	VoidK
+	IdK: main
+	ParamsK
+		VoidK
+	CompK
+		Var_DeclK
+			IntK
+			IdK: a
+		Var_DeclK
+			IntK
+			IdK: b
+		Var_DeclK
+			IntK
+			IdK: c
+		Assign
+			IdK: a
+			CallK
+				IdK: input
+		Assign
+			IdK: b
+			CallK
+				IdK: input
+		Assign
+			IdK: c
+			CallK
+				IdK: input
+		CallK
+			IdK: output
+			CallK
+				IdK: max
+				Assign
+					IdK: a
+				Assign
+					IdK: b
+				Assign
+					IdK: c

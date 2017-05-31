@@ -1,0 +1,263 @@
+******
+Syntax tree:
+*****
+Var_DeclK
+	IntK
+	Arry_DeclK
+		IdK: (null)
+		ConstK: 10
+Funck
+	IntK
+	IdK: findByBinary
+	ParamsK
+		Paramk
+			IntK
+			IdK: array
+		Paramk
+			IntK
+			IdK: size
+		Paramk
+			IntK
+			IdK: number
+	CompK
+		Var_DeclK
+			IntK
+			IdK: low
+		Var_DeclK
+			IntK
+			IdK: high
+		Var_DeclK
+			IntK
+			IdK: mid
+		Var_DeclK
+			IntK
+			IdK: notfound
+		Assign
+			IdK: low
+			ConstK: 0
+		While
+			Op: <=
+				IdK: low
+				IdK: high
+			CompK
+				Assign
+					IdK: mid
+					Op: +
+						IdK: low
+						Op: /
+							Op: -
+								IdK: high
+								IdK: low
+							ConstK: 2
+				If
+					Op: ==
+						Arry_ElemK
+							IdK: array
+							Assign
+								IdK: low
+						IdK: number
+					CompK
+						Return
+							Assign
+								IdK: low
+				If
+					Op: ==
+						Arry_ElemK
+							IdK: array
+							Assign
+								IdK: high
+						IdK: number
+					CompK
+						Return
+							Assign
+								IdK: high
+				If
+					Op: ==
+						Arry_ElemK
+							IdK: array
+							Assign
+								IdK: mid
+						IdK: number
+					CompK
+						Return
+							Assign
+								IdK: mid
+				If
+					Op: <
+						Arry_ElemK
+							IdK: array
+							Assign
+								IdK: mid
+						IdK: number
+					CompK
+						Assign
+							IdK: low
+							Op: +
+								IdK: mid
+								ConstK: 1
+		Return
+			Assign
+				IdK: notfound
+Funck
+	VoidK
+	IdK: sortBySelection
+	ParamsK
+		Paramk
+			IntK
+			IdK: array
+		Paramk
+			IntK
+			IdK: size
+	CompK
+		Var_DeclK
+			IntK
+			IdK: i
+		Var_DeclK
+			IntK
+			IdK: k
+		Var_DeclK
+			IntK
+			IdK: min
+		Var_DeclK
+			IntK
+			IdK: temp
+		Assign
+			IdK: i
+			ConstK: 0
+		While
+			Op: <
+				IdK: i
+				Op: -
+					IdK: size
+					ConstK: 1
+			CompK
+				Assign
+					IdK: min
+					Assign
+						IdK: i
+				While
+					Op: <
+						IdK: k
+						IdK: size
+					CompK
+						If
+							Op: <
+								Arry_ElemK
+									IdK: array
+									Assign
+										IdK: k
+								Arry_ElemK
+									IdK: array
+									Assign
+										IdK: min
+							CompK
+								Assign
+									IdK: min
+									Assign
+										IdK: k
+						Assign
+							IdK: k
+							Op: +
+								IdK: k
+								ConstK: 1
+				If
+					Assign
+						IdK: min
+						Assign
+							IdK: i
+					CompK
+						Assign
+							IdK: temp
+							Assign
+								Arry_ElemK
+									IdK: array
+									Assign
+										IdK: i
+						Assign
+							Arry_ElemK
+								IdK: array
+								Assign
+									IdK: i
+							Assign
+								Arry_ElemK
+									IdK: array
+									Assign
+										IdK: min
+						Assign
+							Arry_ElemK
+								IdK: array
+								Assign
+									IdK: min
+							Assign
+								IdK: temp
+				Assign
+					IdK: i
+					Op: +
+						IdK: i
+						ConstK: 1
+Funck
+	VoidK
+	IdK: main
+	ParamsK
+		VoidK
+	CompK
+		Var_DeclK
+			IntK
+			IdK: i
+		Var_DeclK
+			IntK
+			IdK: num
+		Var_DeclK
+			IntK
+			IdK: numa
+		Assign
+			IdK: i
+			ConstK: 0
+		While
+			Op: <
+				IdK: i
+				ConstK: 10
+			CompK
+				Assign
+					Arry_ElemK
+						IdK: Array
+						Assign
+							IdK: i
+					CallK
+						IdK: input
+				Assign
+					IdK: i
+					Op: +
+						IdK: i
+						ConstK: 1
+		Assign
+			IdK: num
+			CallK
+				IdK: input
+		Assign
+			IdK: numa
+			CallK
+				IdK: input
+		CallK
+			IdK: sortBySelection
+			Assign
+				IdK: Array
+			ConstK: 10
+		CallK
+			IdK: output
+			CallK
+				IdK: findByBinary
+				Assign
+					IdK: Array
+				ConstK: 10
+				Assign
+					IdK: num
+		CallK
+			IdK: output
+			CallK
+				IdK: findByBinary
+				Assign
+					IdK: Array
+				ConstK: 10
+				Assign
+					IdK: numa
