@@ -24,15 +24,15 @@ Funck
 				Return
 					CallK
 						IdK: gcd
-						Assign
+						ArgsK
 							IdK: v
-						Op: -
-							IdK: u
-							Op: *
-								Op: /
-									IdK: u
+							Op: -
+								IdK: u
+								Op: *
+									Op: /
+										IdK: u
+										IdK: v
 									IdK: v
-								IdK: v
 Funck
 	VoidK
 	IdK: main
@@ -55,9 +55,9 @@ Funck
 				IdK: input
 		CallK
 			IdK: output
-			CallK
-				IdK: gcd
-				Assign
-					IdK: x
-				Assign
-					IdK: y
+			ArgsK
+				CallK
+					IdK: gcd
+					ArgsK
+						IdK: x
+						IdK: y

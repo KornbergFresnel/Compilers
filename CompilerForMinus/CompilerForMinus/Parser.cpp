@@ -109,6 +109,10 @@ void Parser::printExpNode(Node* node, int layer) {
             printf("Return\n");
             printTree(node->pChildNode[0], layer + 1);
             break;
+        case ArgsK:
+            printf("ArgsK\n");
+            printTree(node->pChildNode[0], layer + 1);
+            break;
         default:
             break;
     }
@@ -641,7 +645,7 @@ Node* Parser::factor() {
 Node* Parser::call() {
     Node* t = createStmtNode(CallK);
     if (tokens[lookAhead].tokenVal == ID) {
-        Node* p =createExpNode(IdK);
+        Node* p = createExpNode(IdK);
         p->Attr.name = new char[strlen(tokens[lookAhead].attribute.stringVal)];
         std::strcpy(p->Attr.name, tokens[lookAhead].attribute.stringVal);
         t->pChildNode[0] = p;
@@ -659,15 +663,17 @@ Node* Parser::args() {
 }
 
 Node* Parser::arglist() {
-    Node* t = expression();
-    Node* p = t;
+    if (tokens[lookAhead].tokenVal == RPAREN) return NULL;
+    Node* t = createExpNode(ArgsK);
+    t->pChildNode[0] = simpleExp();
+    Node* p = t->pChildNode[0];
     while (tokens[lookAhead].tokenVal != ENDFILE && tokens[lookAhead].tokenVal != RPAREN) {
         Node* q;
         match(COM);
-        q = expression();
+        q = simpleExp();
         if (p != NULL) {
             if (t == NULL) {
-                t = p = q;
+                t->pChildNode[0] = p = q;
             } else {
                 p->pSibling = q;
                 p = q;

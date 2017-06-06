@@ -82,11 +82,10 @@ Funck
 				IdK: input
 		CallK
 			IdK: output
-			CallK
-				IdK: max
-				Assign
-					IdK: a
-				Assign
-					IdK: b
-				Assign
-					IdK: c
+			ArgsK
+				CallK
+					IdK: max
+					ArgsK
+						IdK: a
+						IdK: b
+						IdK: c

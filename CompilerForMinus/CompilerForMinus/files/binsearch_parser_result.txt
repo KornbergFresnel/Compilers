@@ -246,24 +246,24 @@ Funck
 				IdK: input
 		CallK
 			IdK: sortBySelection
-			Assign
+			ArgsK
 				IdK: Array
-			ConstK: 10
+				ConstK: 10
 		CallK
 			IdK: output
-			CallK
-				IdK: findByBinary
-				Assign
-					IdK: Array
-				ConstK: 10
-				Assign
-					IdK: num
+			ArgsK
+				CallK
+					IdK: findByBinary
+					ArgsK
+						IdK: Array
+						ConstK: 10
+						IdK: num
 		CallK
 			IdK: output
-			CallK
-				IdK: findByBinary
-				Assign
-					IdK: Array
-				ConstK: 10
-				Assign
-					IdK: numa
+			ArgsK
+				CallK
+					IdK: findByBinary
+					ArgsK
+						IdK: Array
+						ConstK: 10
+						IdK: numa
