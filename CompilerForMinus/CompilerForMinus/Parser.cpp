@@ -84,6 +84,7 @@ void Parser::printStmtNode(Node* node, int layer) {
     }
     printTree(node->pChildNode[0], layer + 1);
     printTree(node->pChildNode[1], layer + 1);
+    if (node->KNode.stmt == IfK) printTree(node->pChildNode[2], layer + 1);
 }
 
 void Parser::printExpNode(Node* node, int layer) {
