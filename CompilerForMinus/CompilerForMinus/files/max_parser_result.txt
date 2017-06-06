@@ -36,6 +36,20 @@ Funck
 							IdK: result
 							Assign
 								IdK: z
+			CompK
+				Assign
+					IdK: result
+					Assign
+						IdK: y
+				If
+					Op: >
+						IdK: z
+						IdK: result
+					CompK
+						Assign
+							IdK: result
+							Assign
+								IdK: z
 		Return
 			Assign
 				IdK: result

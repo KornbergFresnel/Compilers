@@ -260,8 +260,8 @@ Node* Parser::declara() {
         Node* p = createDeclNode(Arry_DeclK);        
         if (tokens[lookAhead].tokenVal == NUM) {
             p->pChildNode[0] = createExpNode(IdK);
-            p->pChildNode[0]->Attr.name = t->Attr.name;
-            t->Attr.name = NULL;
+            p->pChildNode[0]->Attr.name = t->pChildNode[1]->Attr.name;
+            t->pChildNode[1] = NULL;
             p->pChildNode[1] = createExpNode(ConstK);
             p->pChildNode[1]->Attr.val = tokens[lookAhead].attribute.numVal;
         }

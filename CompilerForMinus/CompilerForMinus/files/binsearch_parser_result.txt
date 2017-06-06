@@ -4,7 +4,7 @@ Syntax tree:
 Var_DeclK
 	IntK
 	Arry_DeclK
-		IdK: (null)
+		IdK: Array
 		ConstK: 10
 Funck
 	IntK
@@ -93,6 +93,12 @@ Funck
 						Assign
 							IdK: low
 							Op: +
+								IdK: mid
+								ConstK: 1
+					CompK
+						Assign
+							IdK: high
+							Op: -
 								IdK: mid
 								ConstK: 1
 		Return

@@ -20,6 +20,19 @@ Funck
 				Return
 					Assign
 						IdK: u
+			CompK
+				Return
+					CallK
+						IdK: gcd
+						Assign
+							IdK: v
+						Op: -
+							IdK: u
+							Op: *
+								Op: /
+									IdK: u
+									IdK: v
+								IdK: v
 Funck
 	VoidK
 	IdK: main
