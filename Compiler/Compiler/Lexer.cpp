@@ -83,7 +83,6 @@ void Lexer::storeToken(const std::string& str) {
     }
     tokenRecord.lineNum = curline;  // record current line number
     eleRecordList.push_back(tokenRecord);
-    // lineNumber.push_back(curline);
 }
 
 /*
